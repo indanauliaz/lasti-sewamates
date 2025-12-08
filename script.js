@@ -1,7 +1,7 @@
 // DATABASE HARDCODED
 const users = {
     'indana': { pass: '123', role: 'renter' },
-    'Admin2': { pass: '123', role: 'provider' }
+    'belinda': { pass: '123', role: 'provider' }
 };
 
 // 1. SYNC LISTENER (Supaya window sebelah update otomatis)
