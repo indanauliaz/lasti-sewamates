@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Toko</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -22,16 +23,11 @@
             </div>
 
             <div id="orders" class="tab-content active">
-                <div id="incomingOrderList"></div>
+                <div id="incomingOrderList">Loading data...</div>
             </div>
 
             <div id="inventory" class="tab-content">
-                <div id="myInventoryGrid" class="catalog-grid">
-                    </div>
-                
-                <button onclick="openAddModal()" class="fab-btn">
-                    <i class="fas fa-plus"></i>
-                </button>
+                <div id="inventoryContainer"></div>
             </div>
         </div>
     </div>
@@ -49,26 +45,58 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
+    
     <script>
-        initData();
-        const user = checkAuth();
-        if (!user) window.location.href = 'login.html';
+        // Global variabel buat nampung data user yang lagi login
+        let currentUser = null;
 
+        // Init Data & Navbar
+        initData();
+        checkAuth(); // Ini buat nge-render Navbar di atas
+
+        // --- LISTENER UTAMA (Pengganti const user = checkAuth) ---
+        // Kita tunggu sampe Firebase bilang "User udah login nih!" baru kita render dashboardnya
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Simpan user ke variabel global biar bisa dipake fungsi lain
+                currentUser = user;
+                
+                // Pake Display Name sebagai ID pemilik barang (biar cocok sama dummy data)
+                const ownerName = user.displayName || user.email;
+
+                // Render Data Dashboard
+                renderOrders(ownerName);
+                renderInventory(ownerName);
+            } else {
+                // Kalau gak ada user, tendang ke login
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- FUNGSI TAB ---
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).style.display = 'block';
             event.target.classList.add('active');
             
-            if(tabName === 'orders') renderOrders();
-            if(tabName === 'inventory') renderInventory();
+            // Re-render saat pindah tab (kalo user datanya udah ada)
+            if(currentUser) {
+                const ownerName = currentUser.displayName || currentUser.email;
+                if(tabName === 'orders') renderOrders(ownerName);
+                if(tabName === 'inventory') renderInventory(ownerName);
+            }
         }
 
-        // --- RENDER PESANAN MASUK (UPDATE: ADA HARI NYA) ---
-        function renderOrders() {
-            const list = getIncomingOrders(user.name);
+        // --- RENDER PESANAN ---
+        function renderOrders(ownerName) {
+            // Ambil orderan yg masuk ke nama user ini
+            const list = getIncomingOrders(ownerName); 
             const container = document.getElementById('incomingOrderList');
             container.innerHTML = '';
 
@@ -88,7 +116,6 @@
                     actionBtns = `<span class="badge bg-${o.status}">${o.status.toUpperCase()}</span>`;
                 }
 
-                // Disini kita tambahkan info durasi hari (${o.days} Hari)
                 container.innerHTML += `
                     <div style="border:1px solid #eee; padding:15px; border-radius:10px; margin-bottom:10px; background:#f9f9f9;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -111,22 +138,51 @@
 
         function processOrder(id, status) {
             updateOrderStatus(id, status);
-            renderOrders(); 
+            // Refresh tampilan pake data user yg tersimpan
+            if(currentUser) renderOrders(currentUser.displayName || currentUser.email); 
         }
 
-        function renderInventory() {
+        // --- RENDER BARANG SAYA (VERSI PRO: Empty State Rapi) ---
+        function renderInventory(ownerName) {
             const allProducts = getProducts();
-            const myProducts = allProducts.filter(p => p.owner === user.name);
-            const grid = document.getElementById('myInventoryGrid');
-            grid.innerHTML = '';
-
+            const myProducts = allProducts.filter(p => p.owner === ownerName);
+            const container = document.getElementById('inventoryContainer'); 
+            
+            // KONDISI 1: KOSONG (Empty State)
+            // Tampilan: Icon Box -> Teks -> Tombol di Tengah
             if(myProducts.length === 0) {
-                grid.innerHTML = '<p style="color:#888;">Kamu belum punya barang disewakan.</p>';
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #888;">
+                        <div style="background: #f0f2f5; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-box-open" style="font-size: 32px; color: #ccc;"></i>
+                        </div>
+                        <h3 style="margin: 0; color: #333;">Belum ada barang</h3>
+                        <p style="margin: 10px 0 25px;">Mulai sewakan barangmu dan dapatkan penghasilan tambahan.</p>
+                        
+                        <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 12px 30px; margin: 0 auto; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-plus"></i> Tambah Barang Pertama
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
+            // KONDISI 2: ADA ISINYA (Filled State)
+            // Tampilan: Tombol Kecil di Kanan Atas -> Grid Barang
+            let html = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+                    <div style="margin-right: auto; align-self: center; font-weight: bold; color: #555;">
+                        Total: ${myProducts.length} Barang
+                    </div>
+                    <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 10px 20px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-plus"></i> Tambah Barang
+                    </button>
+                </div>
+                <div class="catalog-grid">
+            `;
+
             myProducts.forEach(p => {
-                grid.innerHTML += `
+                html += `
                     <div class="product-card">
                         <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
                         <div class="product-info">
@@ -136,12 +192,18 @@
                     </div>
                 `;
             });
+
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
+        // --- MODAL & SAVE PRODUCT ---
         function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
         function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
 
         function saveProduct() {
+            if(!currentUser) return; // Jaga-jaga
+
             const name = document.getElementById('pName').value;
             const price = parseInt(document.getElementById('pPrice').value);
             
@@ -150,20 +212,21 @@
                 products.push({
                     id: Date.now(),
                     name: name,
-                    category: document.getElementById('pCategory').value,
+                    category: document.getElementById('pCategory').value || 'Umum',
                     price: price,
-                    owner: user.name,
+                    // PENTING: Ownernya otomatis pake nama akun Microsoft
+                    owner: currentUser.displayName || currentUser.email, 
                     img: document.getElementById('pImg').value || 'https://via.placeholder.com/150',
-                    desc: document.getElementById('pDesc').value
+                    desc: document.getElementById('pDesc').value || '-'
                 });
                 localStorage.setItem('products', JSON.stringify(products));
                 closeAddModal();
-                renderInventory();
+                
+                // Refresh list barang
+                renderInventory(currentUser.displayName || currentUser.email);
                 alert('Barang berhasil ditambahkan ke tokomu!');
             }
         }
-
-        renderOrders();
     </script>
 </body>
 </html>

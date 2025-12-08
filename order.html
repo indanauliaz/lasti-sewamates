@@ -34,15 +34,18 @@
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                 
                 <h3 style="margin-bottom:15px;">Atur Jadwal Sewa</h3>
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <div style="flex:1;">
-                        <label style="font-size:12px; font-weight:bold;">Mulai</label>
-                        <input type="date" id="startDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap: wrap;">
+                    
+                    <div style="flex: 1; min-width: 200px;"> <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Mulai</label>
+                        <input type="date" id="startDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
                     </div>
-                    <div style="flex:1;">
-                        <label style="font-size:12px; font-weight:bold;">Selesai</label>
-                        <input type="date" id="endDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Selesai</label>
+                        <input type="date" id="endDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
                     </div>
+
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:20px;">
@@ -57,39 +60,73 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
+
     <script>
-        initData(); // Load data dulu
-        const user = checkAuth(); // Cek login
-        if(!user) window.location.href = 'login.html'; 
+        let currentProduct = null;
+        let currentUser = null;
 
-        // 1. AMBIL ID DARI URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const itemId = urlParams.get('id'); // Ambil angka ID (misal: "1")
+        // Init Data & Navbar
+        initData();
+        checkAuth(); 
 
-        // 2. CARI BARANG DI DATABASE
-        const product = getProductById(itemId); // Fungsi dari data.js
+        // TUNGGU FIREBASE SIAP
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                loadProductData(); // <-- Load barang setelah user siap
+            } else {
+                // Simpan ID barang biar nanti bisa balik lagi
+                const urlParams = new URLSearchParams(window.location.search);
+                const itemId = urlParams.get('id');
+                if(itemId) sessionStorage.setItem('pendingOrderId', itemId);
+                
+                window.location.href = 'login.html';
+            }
+        });
 
-        // 3. TAMPILKAN KE LAYAR
-        if(product) {
-            document.getElementById('itemName').innerText = product.name;
-            document.getElementById('itemOwner').innerText = product.owner;
-            document.getElementById('itemDesc').innerText = product.desc;
-            document.getElementById('itemImg').src = product.img;
-        } else {
-            alert('Error: Barang tidak ditemukan (ID: ' + itemId + ')');
-            window.location.href = 'index.html';
+        // --- FUNGSI LOAD DATA BARANG ---
+        function loadProductData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // 🔥 PERBAIKAN DI SINI: Pakai parseInt() biar jadi ANGKA
+            const itemId = parseInt(urlParams.get('id')); 
+            
+            // Ambil data produk
+            currentProduct = getProductById(itemId); 
+
+            if(currentProduct) {
+                // Render data ke layar
+                document.getElementById('itemName').innerText = currentProduct.name;
+                document.getElementById('itemOwner').innerText = currentProduct.owner;
+                document.getElementById('itemDesc').innerText = currentProduct.desc;
+                document.getElementById('itemImg').src = currentProduct.img;
+            } else {
+                // Kalau barang gak ketemu
+                document.querySelector('.container').innerHTML = `
+                    <div style="text-align:center; margin-top:50px;">
+                        <h2>Barang tidak ditemukan (ID: ${itemId})</h2>
+                        <p>Pastikan data.js sudah terupdate.</p>
+                        <a href="index.html" class="btn-main" style="text-decoration:none;">Kembali ke Katalog</a>
+                    </div>
+                `;
+            }
         }
 
-        // 4. HITUNG HARGA (CALCULATOR)
+        // --- FUNGSI KALKULATOR HARGA ---
         function calc() {
+            if(!currentProduct) return;
+
             const startVal = document.getElementById('startDate').value;
             const endVal = document.getElementById('endDate').value;
             const btn = document.getElementById('btnSewa');
             const priceEl = document.getElementById('totalPrice');
 
-            // Reset dulu
+            // Reset tombol
             btn.disabled = true;
             btn.style.opacity = '0.6';
             btn.style.cursor = 'not-allowed';
@@ -102,15 +139,12 @@
                 if (d2 >= d1) {
                     const diffTime = Math.abs(d2 - d1);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-                    const total = diffDays * product.price;
+                    const total = diffDays * currentProduct.price;
 
-                    // Update Tampilan
                     priceEl.innerText = `${formatRupiah(total)} (${diffDays} Hari)`;
-                    // Simpan data di elemen HTML biar gampang diambil pas submit
                     priceEl.dataset.total = total; 
                     priceEl.dataset.days = diffDays;
 
-                    // Aktifkan Tombol
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
@@ -124,17 +158,18 @@
         document.getElementById('startDate').addEventListener('change', calc);
         document.getElementById('endDate').addEventListener('change', calc);
 
-        // 5. SUBMIT PESANAN
+        // --- FUNGSI SUBMIT ORDER ---
         function submitOrder() {
+            if(!currentUser || !currentProduct) return;
+
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
             const days = document.getElementById('totalPrice').dataset.days;
             const total = document.getElementById('totalPrice').dataset.total;
-
-            // Buat pesanan & dapatkan ID Pesanan baru
-            const newOrderId = createOrder(product, user.name, start, end, days, total);
             
-            // Pergi ke halaman bayar
+            const renterName = currentUser.displayName || currentUser.email;
+            const newOrderId = createOrder(currentProduct, renterName, start, end, days, total);
+            
             window.location.href = `payment.html?orderId=${newOrderId}`;
         }
     </script>

@@ -24,29 +24,52 @@ const defaultProducts = [
         category: 'Outdoor', 
         price: 25000, 
         owner: 'farrel', 
-        img: 'https://id-test-11.slatic.net/p/e2b610057022138139e80e3034293f77.jpg', 
-        desc: 'Hangat, cocok untuk jurit malam atau camping.' 
+        img: 'https://id-test-11.slatic.net/p/e27435f303f848f08149f1a21f7c706d.jpg', 
+        desc: 'Untuk kemping di Dago. Hangat dan ringan.' 
+    },
+    { 
+        id: 4, 
+        name: 'Kamera DSLR Canon', 
+        category: 'Elektronik', 
+        price: 50000, 
+        owner: 'belinda', 
+        img: 'https://images.unsplash.com/photo-1560942502-d9612984b917', 
+        desc: 'Cocok buat dokumentasi acara himpunan. Lensa 50mm.' 
+    },
+    { 
+        id: 5, 
+        name: 'Drone DJI Mini', 
+        category: 'Elektronik', 
+        price: 70000, 
+        owner: 'budi', 
+        img: 'https://images.unsplash.com/photo-1506820556276-218228303038', 
+        desc: 'Drone kecil, cocok buat pemula. Termasuk 2 baterai.' 
     }
 ];
 
-// FUNGSI UTAMA
+// FUNGSI INIT
 function initData() {
     if (!localStorage.getItem('products')) {
         localStorage.setItem('products', JSON.stringify(defaultProducts));
     }
-    if (!localStorage.getItem('orders')) {
-        localStorage.setItem('orders', JSON.stringify([]));
-    }
 }
 
-function getProducts() { return JSON.parse(localStorage.getItem('products')) || []; }
-
-// Helper: Pakai '==' biar angka 1 sama dengan string "1" dari URL
-function getProductById(id) { 
-    return getProducts().find(p => p.id == id); 
+// FUNGSI GET PRODUCTS
+function getProducts() {
+    return JSON.parse(localStorage.getItem('products')) || [];
 }
 
-function formatRupiah(angka) { return 'Rp ' + angka.toLocaleString('id-ID'); }
+// 💡 FUNGSI BARU: Cari Produk berdasarkan ID
+function getProductById(id) {
+    const products = getProducts();
+    // Cari produk berdasarkan ID
+    return products.find(p => p.id === id);
+}
+
+// Helper format Rupiah
+function formatRupiah(angka) { 
+    return 'Rp ' + angka.toLocaleString('id-ID'); 
+}
 
 // LOGIKA ORDER
 function createOrder(product, renter, startDate, endDate, totalDays, totalPrice) {
@@ -83,10 +106,11 @@ function updateOrderStatus(orderId, newStatus) {
 
 function getOrdersByRenter(renterName) {
     const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    return orders.filter(o => o.renter === renterName && o.status !== 'unpaid').reverse();
+    return orders.filter(o => o.renter === renterName);
 }
 
-function getIncomingOrders(providerName) {
+function getIncomingOrders(ownerName) {
     const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    return orders.filter(o => o.owner === providerName && o.status !== 'unpaid');
+    // Hapus filter status biar keliatan semua orderan masuk
+    return orders.filter(o => o.owner === ownerName);
 }

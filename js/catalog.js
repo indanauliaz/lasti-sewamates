@@ -1,6 +1,8 @@
-let currentSelectedId = null;
+/* --- File: js/catalog.js (FINAL FIX) --- */
 
-// Fungsi Utama Render Katalog
+// Variabel untuk menyimpan produk yang sedang dilihat di modal
+let currentProduct = null;
+
 // RENDER KATALOG
 function renderCatalog(products) {
     const grid = document.getElementById('catalogGrid');
@@ -16,8 +18,7 @@ function renderCatalog(products) {
     products.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        // Saat diklik, buka modal dengan data produk ini
-        card.onclick = () => openModal(p); 
+        card.onclick = () => openModal(p); // Pass object produknya
         
         card.innerHTML = `
             <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
@@ -31,52 +32,10 @@ function renderCatalog(products) {
     });
 }
 
-// MODAL LOGIC
-let currentProduct = null; // Simpan produk yang lagi dibuka
-
-function openModal(product) {
-    currentProduct = product; // Simpan di variabel global biar tombol sewa tau
-    
-    document.getElementById('modalTitle').innerText = product.name;
-    document.getElementById('modalOwner').innerText = 'Penyedia: ' + product.owner;
-    document.getElementById('modalDesc').innerText = product.desc;
-    document.getElementById('modalPrice').innerText = formatRupiah(product.price) + ' / hari';
-    document.getElementById('modalImg').src = product.img;
-    
-    document.getElementById('productModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
-}
-
-// LOGIKA TOMBOL SEWA
-function checkLoginAndRent() {
-    const user = JSON.parse(sessionStorage.getItem('currentUser'));
-    
-    if (user) {
-        // SUDAH LOGIN: Langsung ke order.html bawa ID
-        window.location.href = `order.html?id=${currentProduct.id}`;
-    } else {
-        // BELUM LOGIN: Simpan ID, suruh login dulu
-        sessionStorage.setItem('pendingOrderId', currentProduct.id);
-        window.location.href = 'login.html'; 
-    }
-}
-
-// Fungsi Search
-function handleSearch(keyword) {
-    const allProducts = getProducts();
-    const filtered = allProducts.filter(p => 
-        p.name.toLowerCase().includes(keyword.toLowerCase()) || 
-        p.category.toLowerCase().includes(keyword.toLowerCase())
-    );
-    renderCatalog(filtered);
-}
-
 // --- MODAL LOGIC (Pop Up) ---
 function openModal(product) {
-    currentSelectedId = product.id;
+    currentProduct = product; // Simpan produk di variabel global
+    
     document.getElementById('modalTitle').innerText = product.name;
     document.getElementById('modalOwner').innerText = 'Penyedia: ' + product.owner;
     document.getElementById('modalDesc').innerText = product.desc;
@@ -98,22 +57,35 @@ window.onclick = function(event) {
     }
 }
 
-// --- KLIK TOMBOL SEWA DI MODAL ---
+// --- LOGIKA TOMBOL SEWA (FIXED: Pake Firebase Check) ---
 function checkLoginAndRent() {
-    const user = JSON.parse(sessionStorage.getItem('currentUser'));
+    // 💡 CEK STATUS LOGIN VIA FIREBASE
+    const user = firebase.auth().currentUser; 
     
     if (user) {
-        // Jika sudah login, langsung ke halaman Order bawa ID barang
-        window.location.href = `order.html?id=${currentSelectedId}`;
+        // SKENARIO A: SUDAH LOGIN
+        // Langsung ke halaman Order bawa ID barang
+        window.location.href = `order.html?id=${currentProduct.id}`;
     } else {
-        // Jika belum login, lempar ke Login
-        // (Opsional: Simpan ID barang biar nanti abis login langsung balik sini)
-        sessionStorage.setItem('pendingOrderId', currentSelectedId);
+        // SKENARIO B: BELUM LOGIN
+        // Simpan ID barang yang mau disewa
+        sessionStorage.setItem('pendingOrderId', currentProduct.id);
         window.location.href = 'login.html'; 
     }
 }
 
-// Helper Format Rupiah (Duplikat dr data.js biar aman)
+// Fungsi Search
+function handleSearch(keyword) {
+    const allProducts = getProducts();
+    const filtered = allProducts.filter(p => 
+        p.name.toLowerCase().includes(keyword.toLowerCase()) || 
+        p.category.toLowerCase().includes(keyword.toLowerCase())
+    );
+    renderCatalog(filtered);
+}
+
+// Helper Format Rupiah 
 function formatRupiah(angka) {
-    return 'Rp ' + angka.toLocaleString('id-ID');
+    // Memastikan format Rupiah berjalan lancar
+    return 'Rp ' + (angka || 0).toLocaleString('id-ID');
 }
