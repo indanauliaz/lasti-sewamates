@@ -13,8 +13,8 @@
             <h2>Masuk SewaMates</h2>
             <p>Simulasi 2 Window:</p>
             <div style="text-align: left; margin-bottom: 15px; background: #eee; padding: 10px; border-radius: 5px; font-size: 13px;">
-                1. Window A: <b>indana</b> (123)<br>
-                2. Window B: <b>budi</b> (123)
+                1. Window A: <b>Admin1</b> (123)<br>
+                2. Window B: <b>Admin2</b> (123)
             </div>
             
             <input type="text" id="usernameInput" placeholder="Username">
@@ -42,7 +42,7 @@
                     </div>
                     <div class="info-section">
                         <h1>Kalkulator Casio FX-991</h1>
-                        <p>Pemilik: <b>Budi</b> | Harga: <b>Rp 5.000/hari</b></p>
+                        <p>Pemilik: <b>Admin2</b> | Harga: <b>Rp 5.000/hari</b></p>
                         <div class="rental-form">
                             <label>Tanggal Mulai:</label>
                             <input type="date" id="startDate" onchange="calcPrice()">
@@ -64,7 +64,7 @@
 
                 <section id="renter-wait-section" style="display: none; text-align: center; padding: 40px;">
                     <h1>⏳ Menunggu Konfirmasi</h1>
-                    <p>Permintaan terkirim ke Budi.</p>
+                    <p>Permintaan terkirim ke Admin2.</p>
                 </section>
 
                 <section id="renter-pay-section" style="display: none; text-align: center; padding: 40px;">
@@ -91,7 +91,7 @@
                         🔔 Permintaan Baru!
                     </div>
                     <div style="padding: 15px;">
-                        <p>Penyewa: <b>Indana</b></p>
+                        <p>Penyewa: <b>Admin1</b></p>
                         <p>Info: <b id="prov-info"></b></p>
                         <p>Metode: <b id="prov-method"></b></p>
                         <button onclick="approveOrder()" class="btn-approve">Setujui Pesanan</button>
@@ -100,7 +100,7 @@
 
                 <div id="provider-waiting-pay" class="card" style="display: none; background: #d1ecf1;">
                     <div style="padding: 15px;">
-                        ✅ Kamu sudah menyetujui. Menunggu Indana membayar...
+                        ✅ Kamu sudah menyetujui. Menunggu Admin1 membayar...
                     </div>
                 </div>
 

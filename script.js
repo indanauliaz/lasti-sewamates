@@ -1,7 +1,7 @@
 // DATABASE HARDCODED
 const users = {
-    'indana': { pass: '123', role: 'renter' },
-    'budi': { pass: '123', role: 'provider' }
+    'Admin1': { pass: '123', role: 'renter' },
+    'Admin2': { pass: '123', role: 'provider' }
 };
 
 // 1. SYNC LISTENER (Supaya window sebelah update otomatis)
@@ -61,7 +61,7 @@ function renderApp() {
         } else if (orderData.status === 'done') {
             document.getElementById('renter-done-section').style.display = 'block';
             document.getElementById('pickupInstruction').innerText = 
-                orderData.method === 'COD Labtek V' ? "Temui Budi di Labtek V" : "Kode Locker: 8821";
+                orderData.method === 'COD Labtek V' ? "Temui Admin2 di Labtek V" : "Kode Locker: 8821";
         }
 
     } 
