@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Sewa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">SewaMates</a>
+        <div id="nav-menu" class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <a href="index.html" style="display:inline-block; margin-bottom:20px; text-decoration:none; color:#555;">
+            <i class="fas fa-arrow-left"></i> Kembali ke Katalog
+        </a>
+
+        <div style="background: white; border-radius: 15px; padding: 30px; display:flex; gap:30px; flex-wrap:wrap; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
+            
+            <div style="flex:1; min-width:300px;">
+                <img id="itemImg" src="" alt="Gambar" style="width:100%; height:300px; object-fit:cover; border-radius:15px; background:#eee;">
+            </div>
+            
+            <div style="flex:1; min-width:300px;">
+                <h1 id="itemName" style="margin-top:0;">Memuat Barang...</h1>
+                <p style="color:#666;">Penyedia: <b id="itemOwner" style="color:#333;">...</b></p>
+                <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin:15px 0;">
+                    <p id="itemDesc" style="margin:0; font-size:14px; color:#555;">...</p>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                
+                <h3 style="margin-bottom:15px;">Atur Jadwal Sewa</h3>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div style="flex:1;">
+                        <label style="font-size:12px; font-weight:bold;">Mulai</label>
+                        <input type="date" id="startDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:12px; font-weight:bold;">Selesai</label>
+                        <input type="date" id="endDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:20px;">
+                    <span style="font-size:14px; color:#888;">Estimasi Biaya:</span>
+                    <h2 id="totalPrice" data-total="0" data-days="0" style="color: var(--primary-color); margin:0;">Rp 0</h2>
+                </div>
+                
+                <button id="btnSewa" onclick="submitOrder()" class="btn-main" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    Pilih Tanggal Dulu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        initData(); // Load data dulu
+        const user = checkAuth(); // Cek login
+        if(!user) window.location.href = 'login.html'; 
+
+        // 1. AMBIL ID DARI URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('id'); // Ambil angka ID (misal: "1")
+
+        // 2. CARI BARANG DI DATABASE
+        const product = getProductById(itemId); // Fungsi dari data.js
+
+        // 3. TAMPILKAN KE LAYAR
+        if(product) {
+            document.getElementById('itemName').innerText = product.name;
+            document.getElementById('itemOwner').innerText = product.owner;
+            document.getElementById('itemDesc').innerText = product.desc;
+            document.getElementById('itemImg').src = product.img;
+        } else {
+            alert('Error: Barang tidak ditemukan (ID: ' + itemId + ')');
+            window.location.href = 'index.html';
+        }
+
+        // 4. HITUNG HARGA (CALCULATOR)
+        function calc() {
+            const startVal = document.getElementById('startDate').value;
+            const endVal = document.getElementById('endDate').value;
+            const btn = document.getElementById('btnSewa');
+            const priceEl = document.getElementById('totalPrice');
+
+            // Reset dulu
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+            btn.innerText = "Pilih Tanggal Dulu";
+
+            if(startVal && endVal) {
+                const d1 = new Date(startVal);
+                const d2 = new Date(endVal);
+                
+                if (d2 >= d1) {
+                    const diffTime = Math.abs(d2 - d1);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                    const total = diffDays * product.price;
+
+                    // Update Tampilan
+                    priceEl.innerText = `${formatRupiah(total)} (${diffDays} Hari)`;
+                    // Simpan data di elemen HTML biar gampang diambil pas submit
+                    priceEl.dataset.total = total; 
+                    priceEl.dataset.days = diffDays;
+
+                    // Aktifkan Tombol
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.innerText = "Ajukan Penyewaan";
+                } else {
+                    btn.innerText = "Tanggal Invalid!";
+                }
+            }
+        }
+
+        document.getElementById('startDate').addEventListener('change', calc);
+        document.getElementById('endDate').addEventListener('change', calc);
+
+        // 5. SUBMIT PESANAN
+        function submitOrder() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const days = document.getElementById('totalPrice').dataset.days;
+            const total = document.getElementById('totalPrice').dataset.total;
+
+            // Buat pesanan & dapatkan ID Pesanan baru
+            const newOrderId = createOrder(product, user.name, start, end, days, total);
+            
+            // Pergi ke halaman bayar
+            window.location.href = `payment.html?orderId=${newOrderId}`;
+        }
+    </script>
+</body>
+</html>

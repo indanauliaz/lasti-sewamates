@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SewaMates</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-box">
+            <h2 style="color: var(--primary-color);">Masuk SewaMates</h2>
+            <form onsubmit="return performLogin(event)">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="btn-main">Masuk</button>
+            </form>
+            <p id="errorMsg" style="color: red; display:none; margin-top:10px;">Username/Password Salah</p>
+            <br>
+            <a href="index.html" style="text-decoration:none; color:#888;">&larr; Kembali ke Katalog</a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function performLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.toLowerCase();
+            const p = document.getElementById('password').value;
+            
+            if (handleLoginEvent(u, p)) {
+                // Login Berhasil
+                
+                // Cek apakah ada barang yang mau disewa sebelumnya?
+                const pendingItem = sessionStorage.getItem('pendingOrderId');
+                
+                if (pendingItem) {
+                    sessionStorage.removeItem('pendingOrderId'); // Hapus jejak
+                    window.location.href = `order.html?id=${pendingItem}`; // Balik ke halaman sewa
+                } else {
+                    // Kalau login biasa, arahkan sesuai role
+                    const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (user.role === 'provider') window.location.href = 'provider.html';
+                    else window.location.href = 'index.html';
+                }
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pembayaran QRIS</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="qris-container">
+            <h2>Scan QRIS</h2>
+            <p>Total Tagihan: <b id="payAmount">Rp 0</b></p>
+            
+            <div style="position: relative; overflow: hidden; width: 200px; height: 200px; margin: 20px auto; border: 2px solid #333;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" width="100%">
+                <div class="scan-line"></div>
+            </div>
+
+            <p>Otomatis mengecek pembayaran dalam <span id="timer">5</span> detik...</p>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <h1 style="font-size: 50px;">✅</h1>
+            <h2>Pembayaran Berhasil!</h2>
+            <p>Pesanan diteruskan ke penyedia barang. Mohon tunggu konfirmasi.</p>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        initData();
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        
+        // Ambil info order buat nampilin harga
+        const orders = JSON.parse(localStorage.getItem('orders'));
+        const order = orders.find(o => o.id === orderId);
+        
+        if(order) {
+            document.getElementById('payAmount').innerText = formatRupiah(order.total);
+        }
+
+        // Timer 5 Detik
+        let timeLeft = 5;
+        const timerEl = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            
+            if(timeLeft <= 0) {
+                clearInterval(countdown);
+                finishPayment();
+            }
+        }, 1000);
+
+        function finishPayment() {
+            // Update status jadi 'pending' (Menunggu konfirmasi provider)
+            updateOrderStatus(orderId, 'pending');
+            
+            // Tampil Popup
+            document.getElementById('successModal').style.display = 'flex';
+            
+            // Redirect ke Profil setelah 2 detik
+            setTimeout(() => {
+                window.location.href = 'profile.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

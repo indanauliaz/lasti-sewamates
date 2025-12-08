@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Toko</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">SewaMates</a>
+        <div id="nav-menu" class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <div style="background: white; padding: 20px; border-radius: 20px; min-height: 80vh;">
+            <h1>Dashboard Penyedia</h1>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('orders')">Pesanan Masuk</button>
+                <button class="tab-btn" onclick="switchTab('inventory')">Barang Saya</button>
+            </div>
+
+            <div id="orders" class="tab-content active">
+                <div id="incomingOrderList"></div>
+            </div>
+
+            <div id="inventory" class="tab-content">
+                <div id="myInventoryGrid" class="catalog-grid">
+                    </div>
+                
+                <button onclick="openAddModal()" class="fab-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddModal()">&times;</span>
+            <h2>Tambah Barang Baru</h2>
+            <input type="text" id="pName" placeholder="Nama Barang" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
+            <input type="text" id="pCategory" placeholder="Kategori" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
+            <input type="number" id="pPrice" placeholder="Harga per hari (Rp)" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
+            <input type="text" id="pImg" placeholder="Link URL Gambar" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
+            <textarea id="pDesc" placeholder="Deskripsi Singkat" class="search-input" style="border:1px solid #ddd; margin-bottom:10px; border-radius:10px;"></textarea>
+            <button onclick="saveProduct()" class="btn-main">Simpan</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        initData();
+        const user = checkAuth();
+        if (!user) window.location.href = 'login.html';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).style.display = 'block';
+            event.target.classList.add('active');
+            
+            if(tabName === 'orders') renderOrders();
+            if(tabName === 'inventory') renderInventory();
+        }
+
+        // --- RENDER PESANAN MASUK (UPDATE: ADA HARI NYA) ---
+        function renderOrders() {
+            const list = getIncomingOrders(user.name);
+            const container = document.getElementById('incomingOrderList');
+            container.innerHTML = '';
+
+            if(list.length === 0) {
+                container.innerHTML = '<p style="color:#888;">Belum ada pesanan masuk.</p>';
+                return;
+            }
+
+            list.forEach(o => {
+                let actionBtns = '';
+                if(o.status === 'pending') {
+                    actionBtns = `
+                        <button onclick="processOrder('${o.id}', 'approved')" class="btn-main" style="width:auto; background:#2ecc71; padding:5px 15px; font-size:12px;">Terima</button>
+                        <button onclick="processOrder('${o.id}', 'rejected')" class="btn-main" style="width:auto; background:#e74c3c; padding:5px 15px; font-size:12px;">Tolak</button>
+                    `;
+                } else {
+                    actionBtns = `<span class="badge bg-${o.status}">${o.status.toUpperCase()}</span>`;
+                }
+
+                // Disini kita tambahkan info durasi hari (${o.days} Hari)
+                container.innerHTML += `
+                    <div style="border:1px solid #eee; padding:15px; border-radius:10px; margin-bottom:10px; background:#f9f9f9;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <b style="font-size:16px;">${o.productName}</b><br>
+                                <small style="color:#555;">Penyewa: <b>${o.renter}</b></small><br>
+                                <small style="color:#555;">
+                                    📅 ${o.start} s.d ${o.end} <b style="color:#e67e22;">(${o.days} Hari)</b>
+                                </small>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:bold; color:#4a69bd; font-size:16px;">${formatRupiah(o.total)}</div>
+                                <div style="margin-top:8px;">${actionBtns}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function processOrder(id, status) {
+            updateOrderStatus(id, status);
+            renderOrders(); 
+        }
+
+        function renderInventory() {
+            const allProducts = getProducts();
+            const myProducts = allProducts.filter(p => p.owner === user.name);
+            const grid = document.getElementById('myInventoryGrid');
+            grid.innerHTML = '';
+
+            if(myProducts.length === 0) {
+                grid.innerHTML = '<p style="color:#888;">Kamu belum punya barang disewakan.</p>';
+                return;
+            }
+
+            myProducts.forEach(p => {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
+                        <div class="product-info">
+                            <div style="font-weight:bold;">${p.name}</div>
+                            <div style="color:#4a69bd; font-size:14px;">${formatRupiah(p.price)}/hari</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+
+        function saveProduct() {
+            const name = document.getElementById('pName').value;
+            const price = parseInt(document.getElementById('pPrice').value);
+            
+            if(name && price) {
+                const products = getProducts();
+                products.push({
+                    id: Date.now(),
+                    name: name,
+                    category: document.getElementById('pCategory').value,
+                    price: price,
+                    owner: user.name,
+                    img: document.getElementById('pImg').value || 'https://via.placeholder.com/150',
+                    desc: document.getElementById('pDesc').value
+                });
+                localStorage.setItem('products', JSON.stringify(products));
+                closeAddModal();
+                renderInventory();
+                alert('Barang berhasil ditambahkan ke tokomu!');
+            }
+        }
+
+        renderOrders();
+    </script>
+</body>
+</html>
