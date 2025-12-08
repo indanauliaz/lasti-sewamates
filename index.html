@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SewaMates</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-page" class="login-container">
+        <div class="login-box">
+            <h2>Masuk SewaMates</h2>
+            <p>Simulasi 2 Window:</p>
+            <div style="text-align: left; margin-bottom: 15px; background: #eee; padding: 10px; border-radius: 5px; font-size: 13px;">
+                1. Window A: <b>indana</b> (123)<br>
+                2. Window B: <b>budi</b> (123)
+            </div>
+            
+            <input type="text" id="usernameInput" placeholder="Username">
+            <input type="password" id="passwordInput" placeholder="Password">
+            <button onclick="handleLogin()" class="btn-main">Masuk</button>
+            <p id="loginError" style="color: red; display: none;">Akun salah!</p>
+        </div>
+    </div>
+
+    <div id="app-page" style="display: none;">
+        <nav class="navbar">
+            <div class="logo">SewaMates</div>
+            <div>
+                <span id="userDisplay" style="margin-right: 10px;">User</span>
+                <button onclick="handleLogout()" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            
+            <div id="renter-view" style="display: none;">
+                <section id="renter-form-section">
+                    <div class="image-section">
+                        <img src="https://images.unsplash.com/photo-1594910072328-765083dc8d33?q=80&w=1000" alt="Kalkulator">
+                    </div>
+                    <div class="info-section">
+                        <h1>Kalkulator Casio FX-991</h1>
+                        <p>Pemilik: <b>Budi</b> | Harga: <b>Rp 5.000/hari</b></p>
+                        <div class="rental-form">
+                            <label>Tanggal Mulai:</label>
+                            <input type="date" id="startDate" onchange="calcPrice()">
+                            
+                            <label>Tanggal Kembali:</label>
+                            <input type="date" id="endDate" onchange="calcPrice()">
+                            
+                            <label>Ambil via:</label>
+                            <select id="pickupMethod">
+                                <option value="COD Labtek V">COD Labtek V</option>
+                                <option value="Smart Locker GKUB">Smart Locker GKUB</option>
+                            </select>
+                            
+                            <h3 id="priceDisplay">Total: Rp 0</h3>
+                            <button onclick="submitOrder()" class="btn-main" id="btnSewa" disabled>Ajukan Sewa</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="renter-wait-section" style="display: none; text-align: center; padding: 40px;">
+                    <h1>⏳ Menunggu Konfirmasi</h1>
+                    <p>Permintaan terkirim ke Budi.</p>
+                </section>
+
+                <section id="renter-pay-section" style="display: none; text-align: center; padding: 40px;">
+                    <h1>✅ Disetujui!</h1>
+                    <p>Silakan lakukan pembayaran.</p>
+                    <button onclick="payOrder()" class="btn-main">Bayar via QRIS</button>
+                </section>
+
+                 <section id="renter-done-section" style="display: none; text-align: center; padding: 40px;">
+                    <h1>🎉 Transaksi Selesai</h1>
+                    <p id="pickupInstruction"></p>
+                    <button onclick="resetSystem()" style="margin-top:20px; background:#666; color:white; border:none; padding:10px;">Reset Demo</button>
+                </section>
+            </div>
+
+            <div id="provider-view" style="display: none;">
+                <h2>Dashboard Penyedia</h2>
+                <div id="provider-empty" style="padding: 30px; text-align: center; color: #888;">
+                    Belum ada pesanan masuk.
+                </div>
+                
+                <div id="provider-card" class="card" style="display: none;">
+                    <div style="background: #fff3cd; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd;">
+                        🔔 Permintaan Baru!
+                    </div>
+                    <div style="padding: 15px;">
+                        <p>Penyewa: <b>Indana</b></p>
+                        <p>Info: <b id="prov-info"></b></p>
+                        <p>Metode: <b id="prov-method"></b></p>
+                        <button onclick="approveOrder()" class="btn-approve">Setujui Pesanan</button>
+                    </div>
+                </div>
+
+                <div id="provider-waiting-pay" class="card" style="display: none; background: #d1ecf1;">
+                    <div style="padding: 15px;">
+                        ✅ Kamu sudah menyetujui. Menunggu Indana membayar...
+                    </div>
+                </div>
+
+                 <div id="provider-done" class="card" style="display: none; background: #d4edda;">
+                    <div style="padding: 15px;">
+                        💰 <b>Pembayaran Diterima!</b><br>
+                        Transaksi selesai.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
