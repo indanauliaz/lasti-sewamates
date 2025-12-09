@@ -136,6 +136,21 @@
             currentProduct = getProductById(itemId); 
 
             if(currentProduct) {
+                const user = firebase.auth().currentUser;
+                let currentDisplayName = null;
+                
+                if (user && user.email.endsWith('@mahasiswa.itb.ac.id')) {
+                    // 2. Hitung Display Name
+                    currentDisplayName = (user.displayName || user.email.split('@')[0]).trim();
+                }
+
+                // Cek Kepemilikan (Pencegahan Lapisan Ke-3)
+                if (currentDisplayName && currentProduct.owner.toLowerCase().trim() === currentDisplayName.toLowerCase()) {
+                    alert("⚠️ Anda tidak diizinkan menyewa barang milik Anda sendiri.");
+                    window.location.href = 'index.html';
+                    return; 
+                }
+
                 document.getElementById('itemName').innerText = currentProduct.name;
                 document.getElementById('itemOwner').innerText = currentProduct.owner;
                 document.getElementById('itemDesc').innerText = currentProduct.desc;

@@ -6,7 +6,7 @@ const defaultProducts = [
         category: 'Alat Tulis', 
         price: 5000, 
         owner: 'belinda', 
-        img: 'https://images.unsplash.com/photo-1594910072328-765083dc8d33?q=80&w=1000', 
+        img: 'img/kalku.jpeg', 
         desc: 'Cocok untuk ujian Fisdas/Kalkulus. Baterai baru ganti.' 
     },
     { 
@@ -15,7 +15,7 @@ const defaultProducts = [
         category: 'Pakaian', 
         price: 10000, 
         owner: 'kamala', 
-        img: 'https://down-id.img.susercontent.com/file/646247924409540b793666c043029f60', 
+        img: 'img/jaslab.jpg', 
         desc: 'Bahan oxford, ukuran L, bersih habis di-laundry.' 
     },
     { 
@@ -24,7 +24,7 @@ const defaultProducts = [
         category: 'Outdoor', 
         price: 25000, 
         owner: 'farrel', 
-        img: 'https://id-test-11.slatic.net/p/e27435f303f848f08149f1a21f7c706d.jpg', 
+        img: 'img/sleepingbag.jpg', 
         desc: 'Untuk kemping di Dago. Hangat dan ringan.' 
     },
     { 
@@ -33,7 +33,7 @@ const defaultProducts = [
         category: 'Elektronik', 
         price: 50000, 
         owner: 'belinda', 
-        img: 'https://images.unsplash.com/photo-1560942502-d9612984b917', 
+        img: 'img/kamera.jpg', 
         desc: 'Cocok buat dokumentasi acara himpunan. Lensa 50mm.' 
     },
     { 
@@ -42,7 +42,7 @@ const defaultProducts = [
         category: 'Elektronik', 
         price: 70000, 
         owner: 'budi', 
-        img: 'https://images.unsplash.com/photo-1506820556276-218228303038', 
+        img: 'img/drone.jpg', 
         desc: 'Drone kecil, cocok buat pemula. Termasuk 2 baterai.' 
     }
 ];

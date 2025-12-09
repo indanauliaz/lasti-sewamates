@@ -174,3 +174,15 @@ function renderNavbar(user, isLoggedIn) {
         `;
     }
 }
+
+/* --- File: js/auth.js --- (Tambahkan di bagian bawah) */
+
+// --- 7. HELPER: AMBIL ID PENGGUNA (SAMA DENGAN OWNER NAME) ---
+function getCurrentUserName() {
+    const user = firebase.auth().currentUser;
+    if (user && user.email.endsWith('@mahasiswa.itb.ac.id')) {
+        // Ambil bagian sebelum @.
+        return user.email.split('@')[0];
+    }
+    return null; 
+}
