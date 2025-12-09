@@ -52,6 +52,10 @@ function initData() {
     if (!localStorage.getItem('products')) {
         localStorage.setItem('products', JSON.stringify(defaultProducts));
     }
+    // Pastikan database orders juga ada biar gak error null
+    if (!localStorage.getItem('orders')) {
+        localStorage.setItem('orders', JSON.stringify([]));
+    }
 }
 
 // FUNGSI GET PRODUCTS
@@ -59,20 +63,22 @@ function getProducts() {
     return JSON.parse(localStorage.getItem('products')) || [];
 }
 
-// 💡 FUNGSI BARU: Cari Produk berdasarkan ID
+// 💡 FUNGSI PENTING: Cari Produk berdasarkan ID
 function getProductById(id) {
     const products = getProducts();
-    // Cari produk berdasarkan ID
-    return products.find(p => p.id === id);
+    // PENTING: Pakai '==' biar angka (1) dan string ('1') dianggap sama
+    return products.find(p => p.id == id);
 }
 
 // Helper format Rupiah
 function formatRupiah(angka) { 
-    return 'Rp ' + angka.toLocaleString('id-ID'); 
+    return 'Rp ' + parseInt(angka).toLocaleString('id-ID'); 
 }
 
-// LOGIKA ORDER
-function createOrder(product, renter, startDate, endDate, totalDays, totalPrice) {
+// --- LOGIKA ORDER ---
+
+// 1. Buat Order Baru
+function createOrder(product, renter, startDate, endDate, totalDays, totalPrice, method) {
     const orders = JSON.parse(localStorage.getItem('orders')) || [];
     
     const newOrder = {
@@ -86,6 +92,7 @@ function createOrder(product, renter, startDate, endDate, totalDays, totalPrice)
         end: endDate,
         days: totalDays,
         total: totalPrice,
+        method: method || 'Ambil Langsung', // Default method jika kosong
         status: 'unpaid'
     };
     
@@ -94,7 +101,20 @@ function createOrder(product, renter, startDate, endDate, totalDays, totalPrice)
     return newOrder.id; 
 }
 
-// LOGIKA UPDATE STATUS & GET ORDER
+// 2. Ambil Orderan Masuk (Untuk Provider)
+function getIncomingOrders(providerName) {
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    // Filter: Barang milik provider INI, dan statusnya bukan unpaid
+    return orders.filter(o => o.owner === providerName && o.status !== 'unpaid');
+}
+
+// 3. Ambil Riwayat Belanja (Untuk Renter/Profil)
+function getOrdersByRenter(renterName) {
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    return orders.filter(o => o.renter === renterName && o.status !== 'unpaid').reverse();
+}
+
+// 4. Update Status Order
 function updateOrderStatus(orderId, newStatus) {
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
     const index = orders.findIndex(o => o.id === orderId);
@@ -102,15 +122,4 @@ function updateOrderStatus(orderId, newStatus) {
         orders[index].status = newStatus;
         localStorage.setItem('orders', JSON.stringify(orders));
     }
-}
-
-function getOrdersByRenter(renterName) {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    return orders.filter(o => o.renter === renterName);
-}
-
-function getIncomingOrders(ownerName) {
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
-    // Hapus filter status biar keliatan semua orderan masuk
-    return orders.filter(o => o.owner === ownerName);
 }

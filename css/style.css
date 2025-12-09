@@ -195,3 +195,126 @@ body {
 .bg-paid { background: #3498db; }
 .bg-approved { background: #2ecc71; }
 .bg-rejected { background: #e74c3c; }
+
+/* --- TAMBAHAN DI css/style.css --- */
+
+/* Container tombol di dalam card provider */
+.provider-actions {
+    display: flex;
+    gap: 10px;
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    margin-top: auto; /* Dorong ke bawah */
+}
+
+.btn-action {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-edit { background: #f1c40f; color: white; } /* Kuning */
+.btn-delete { background: #e74c3c; color: white; } /* Merah */
+.btn-action:hover { opacity: 0.8; }
+
+/* --- Update di file css/style.css --- */
+
+/* TOMBOL TAMBAH BARANG (Versi Lebih Kecil & Rapi) */
+.btn-add-normal {
+    background-color: var(--primary-color, #4a69bd); 
+    color: white;
+    
+    border: none;
+    border-radius: 10px; /* Radius sedikit dikurangi */
+    
+    /* UKURAN DIPERKECIL DISINI */
+    padding: 10px 20px;  /* Sebelumnya 12px 24px */
+    font-size: 14px;     /* Sebelumnya 15px */
+    font-weight: 600;
+    
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Jarak ikon dan teks dirapatkan dikit */
+    gap: 8px; 
+    
+    box-shadow: 0 4px 10px rgba(74, 105, 189, 0.25);
+    transition: all 0.2s ease-in-out;
+    text-shadow: none;
+    text-decoration: none;
+}
+
+/* Ukuran Ikon menyesuaikan teks */
+.btn-add-normal i {
+    font-size: 14px; /* Disamakan dengan ukuran font tombol */
+    font-weight: bold;
+}
+
+/* Efek Hover */
+.btn-add-normal:hover {
+    transform: translateY(-2px); /* Naik sedikit saja */
+    box-shadow: 0 6px 14px rgba(74, 105, 189, 0.35);
+    background-color: #3d5aa8;
+}
+
+.btn-add-normal:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(74, 105, 189, 0.25);
+}
+
+/* --- Tambahkan di bagian bawah file css/style.css --- */
+
+/* Style untuk Dropdown Pilihan */
+select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-family: inherit;
+    background: #f9f9f9;
+    box-sizing: border-box;
+    cursor: pointer;
+    appearance: none; /* Hilangkan panah default browser */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 12px auto;
+}
+
+select:focus { outline: none; border-color: #667eea; background-color: white; }
+
+/* Style untuk Rincian Biaya */
+.price-details {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.price-row.total {
+    margin-top: 15px;
+    font-weight: 700;
+    color: #333;
+    font-size: 18px;
+    border-top: 1px dashed #ddd;
+    padding-top: 15px;
+}
+
+.price-row.total span:last-child {
+    color: #4a69bd; /* Warna Total */
+}

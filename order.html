@@ -34,23 +34,45 @@
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                 
                 <h3 style="margin-bottom:15px;">Atur Jadwal Sewa</h3>
-
                 <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap: wrap;">
-                    
-                    <div style="flex: 1; min-width: 200px;"> <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Mulai</label>
+                    <div style="flex: 1; min-width: 200px;"> 
+                        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Mulai</label>
                         <input type="date" id="startDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
                     </div>
-                    
                     <div style="flex: 1; min-width: 200px;">
                         <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Selesai</label>
                         <input type="date" id="endDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
                     </div>
-
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:20px;">
-                    <span style="font-size:14px; color:#888;">Estimasi Biaya:</span>
-                    <h2 id="totalPrice" data-total="0" data-days="0" style="color: var(--primary-color); margin:0;">Rp 0</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Metode Pengambilan</label>
+                    <select id="pickupMethod" onchange="calc()" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box; background:white;">
+                        <option value="meetup">🤝 Ambil Langsung (Gratis)</option>
+                        <option value="locker">🔐 Smart Locker ITB (+Rp 5.000)</option>
+                    </select>
+                </div>
+
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display:flex; justify-content:space-between; font-size:14px; color:#666; margin-bottom: 5px;">
+                        <span>Biaya Sewa (<span id="dayCount">0</span> Hari)</span>
+                        <span id="rentCost">Rp 0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:14px; color:#666; margin-bottom: 5px;">
+                        <span>Biaya Layanan</span>
+                        <span>Rp 2.000</span>
+                    </div>
+                    <div id="lockerRow" style="display:none; justify-content:space-between; font-size:14px; color:#27ae60; margin-bottom: 5px;">
+                        <span>Biaya Smart Locker</span>
+                        <span>+ Rp 5.000</span>
+                    </div>
+                    
+                    <hr style="border:0; border-top:1px dashed #ccc; margin: 10px 0;">
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; color:#333;">Total Pembayaran</span>
+                        <h2 id="totalPrice" data-total="0" data-days="0" style="color: var(--primary-color); margin:0;">Rp 0</h2>
+                    </div>
                 </div>
                 
                 <button id="btnSewa" onclick="submitOrder()" class="btn-main" disabled style="opacity: 0.6; cursor: not-allowed;">
@@ -69,64 +91,74 @@
     <script>
         let currentProduct = null;
         let currentUser = null;
+        
+        const ADMIN_FEE = 2000;
+        const LOCKER_FEE = 5000;
 
-        // Init Data & Navbar
+        // Init
         initData();
         checkAuth(); 
 
-        // TUNGGU FIREBASE SIAP
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                loadProductData(); // <-- Load barang setelah user siap
+        // FIREBASE AUTH
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    loadProductData();
+                } else {
+                    const localUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if(localUser) {
+                        currentUser = { displayName: localUser.name, email: localUser.name };
+                        loadProductData();
+                    } else {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const itemId = urlParams.get('id');
+                        if(itemId) sessionStorage.setItem('pendingOrderId', itemId);
+                        window.location.href = 'login.html';
+                    }
+                }
+            });
+        } else {
+            // Fallback total kalo ga ada firebase
+            const localUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if(localUser) {
+                currentUser = { displayName: localUser.name, email: localUser.name };
+                loadProductData();
             } else {
-                // Simpan ID barang biar nanti bisa balik lagi
-                const urlParams = new URLSearchParams(window.location.search);
-                const itemId = urlParams.get('id');
-                if(itemId) sessionStorage.setItem('pendingOrderId', itemId);
-                
                 window.location.href = 'login.html';
             }
-        });
+        }
 
-        // --- FUNGSI LOAD DATA BARANG ---
+        // LOAD DATA
         function loadProductData() {
             const urlParams = new URLSearchParams(window.location.search);
-            
-            // 🔥 PERBAIKAN DI SINI: Pakai parseInt() biar jadi ANGKA
-            const itemId = parseInt(urlParams.get('id')); 
-            
-            // Ambil data produk
+            const itemId = parseInt(urlParams.get('id')) || urlParams.get('id'); // Support string/int
             currentProduct = getProductById(itemId); 
 
             if(currentProduct) {
-                // Render data ke layar
                 document.getElementById('itemName').innerText = currentProduct.name;
                 document.getElementById('itemOwner').innerText = currentProduct.owner;
                 document.getElementById('itemDesc').innerText = currentProduct.desc;
                 document.getElementById('itemImg').src = currentProduct.img;
             } else {
-                // Kalau barang gak ketemu
-                document.querySelector('.container').innerHTML = `
-                    <div style="text-align:center; margin-top:50px;">
-                        <h2>Barang tidak ditemukan (ID: ${itemId})</h2>
-                        <p>Pastikan data.js sudah terupdate.</p>
-                        <a href="index.html" class="btn-main" style="text-decoration:none;">Kembali ke Katalog</a>
-                    </div>
-                `;
+                document.querySelector('.container').innerHTML = `<h2 style='text-align:center'>Barang tidak ditemukan</h2>`;
             }
         }
 
-        // --- FUNGSI KALKULATOR HARGA ---
+        // KALKULATOR HARGA
         function calc() {
             if(!currentProduct) return;
 
             const startVal = document.getElementById('startDate').value;
             const endVal = document.getElementById('endDate').value;
+            const pickupMethod = document.getElementById('pickupMethod').value;
+            
             const btn = document.getElementById('btnSewa');
-            const priceEl = document.getElementById('totalPrice');
+            const rentCostEl = document.getElementById('rentCost');
+            const totalEl = document.getElementById('totalPrice');
+            const dayCountEl = document.getElementById('dayCount');
+            const lockerRow = document.getElementById('lockerRow');
 
-            // Reset tombol
             btn.disabled = true;
             btn.style.opacity = '0.6';
             btn.style.cursor = 'not-allowed';
@@ -139,11 +171,29 @@
                 if (d2 >= d1) {
                     const diffTime = Math.abs(d2 - d1);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-                    const total = diffDays * currentProduct.price;
+                    
+                    // 1. Hitung Sewa
+                    const baseRent = diffDays * currentProduct.price;
+                    
+                    // 2. Hitung Locker
+                    let lockerCost = 0;
+                    if (pickupMethod === 'locker') {
+                        lockerCost = LOCKER_FEE;
+                        lockerRow.style.display = 'flex';
+                    } else {
+                        lockerRow.style.display = 'none';
+                    }
 
-                    priceEl.innerText = `${formatRupiah(total)} (${diffDays} Hari)`;
-                    priceEl.dataset.total = total; 
-                    priceEl.dataset.days = diffDays;
+                    // 3. Grand Total
+                    const grandTotal = baseRent + ADMIN_FEE + lockerCost;
+
+                    // 4. Update Tampilan
+                    dayCountEl.innerText = diffDays;
+                    rentCostEl.innerText = formatRupiah(baseRent);
+                    totalEl.innerText = formatRupiah(grandTotal);
+                    
+                    totalEl.dataset.total = grandTotal; 
+                    totalEl.dataset.days = diffDays;
 
                     btn.disabled = false;
                     btn.style.opacity = '1';
@@ -158,7 +208,7 @@
         document.getElementById('startDate').addEventListener('change', calc);
         document.getElementById('endDate').addEventListener('change', calc);
 
-        // --- FUNGSI SUBMIT ORDER ---
+        // SUBMIT
         function submitOrder() {
             if(!currentUser || !currentProduct) return;
 
@@ -167,8 +217,12 @@
             const days = document.getElementById('totalPrice').dataset.days;
             const total = document.getElementById('totalPrice').dataset.total;
             
+            const selectEl = document.getElementById('pickupMethod');
+            const methodText = selectEl.options[selectEl.selectedIndex].text;
+            
             const renterName = currentUser.displayName || currentUser.email;
-            const newOrderId = createOrder(currentProduct, renterName, start, end, days, total);
+            
+            const newOrderId = createOrder(currentProduct, renterName, start, end, days, total, methodText);
             
             window.location.href = `payment.html?orderId=${newOrderId}`;
         }
