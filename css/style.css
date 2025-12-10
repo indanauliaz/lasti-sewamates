@@ -98,7 +98,7 @@ body {
 
 /* SEARCH BAR */
 .search-container { text-align: center; margin-bottom: 40px; color: white; }
-.search-input { width: 100%; max-width: 500px; padding: 15px 25px; border-radius: 50px; border: none; font-family: inherit; outline: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.search-input { width: 100%; max-width: 500px; padding: 15px 15px; border-radius: 50px; border: none; font-family: inherit; outline: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
 /* MODAL (POP UP) */
 .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
