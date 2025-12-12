@@ -318,3 +318,34 @@ select:focus { outline: none; border-color: #667eea; background-color: white; }
 .price-row.total span:last-child {
     color: #4a69bd; /* Warna Total */
 }
+
+/* =========================
+   LOGO SEWAMATES (ICON + TEXT)
+   ========================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 32px;
+    width: auto;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.logo-black {
+    color: #111;
+}
+
+.logo-blue {
+    color: #4E85BE;
+}

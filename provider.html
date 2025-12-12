@@ -1,67 +1,155 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Toko</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <nav class="navbar">
-        <a href="index.html" class="logo">SewaMates</a>
-        <div id="nav-menu" class="nav-links"></div>
+      <a href="index.html" class="logo">
+        <img
+          src="img/sewamates-logo.png"
+          alt="SewaMates Logo"
+          class="logo-img"
+        />
+        <span class="logo-text">
+          <span class="logo-black">Sewa</span
+          ><span class="logo-blue">Mates</span>
+        </span>
+      </a>
+
+      <div id="nav-menu" class="nav-links"></div>
     </nav>
 
     <div class="container">
-        <div style="background: white; padding: 20px; border-radius: 20px; min-height: 80vh;">
-            <h1>Dashboard Penyedia</h1>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('orders')">Pesanan Masuk</button>
-                <button class="tab-btn" onclick="switchTab('inventory')">Barang Saya</button>
-            </div>
+      <div
+        style="
+          background: white;
+          padding: 20px;
+          border-radius: 20px;
+          min-height: 80vh;
+        "
+      >
+        <h1>Dashboard Penyedia</h1>
 
-            <div id="orders" class="tab-content active">
-                <div id="incomingOrderList">Loading data...</div>
-            </div>
-
-            <div id="inventory" class="tab-content">
-                <div id="inventoryContainer"></div>
-            </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('orders')">
+            Pesanan Masuk
+          </button>
+          <button class="tab-btn" onclick="switchTab('inventory')">
+            Barang Saya
+          </button>
         </div>
+
+        <div id="orders" class="tab-content active">
+          <div id="incomingOrderList">Loading data...</div>
+        </div>
+
+        <div id="inventory" class="tab-content">
+          <div id="inventoryContainer"></div>
+        </div>
+      </div>
     </div>
 
     <div id="addModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeAddModal()">&times;</span>
-            <h2 id="modalTitle">Tambah Barang Baru</h2>
-            
-            <input type="hidden" id="editId">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeAddModal()">&times;</span>
+        <h2 id="modalTitle">Tambah Barang Baru</h2>
 
-            <input type="text" id="pName" placeholder="Nama Barang" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
-            <input type="text" id="pCategory" placeholder="Kategori" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
-            <input type="number" id="pPrice" placeholder="Harga per hari (Rp)" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
-            <input type="text" id="pImg" placeholder="Link URL Gambar" class="search-input" style="border:1px solid #ddd; margin-bottom:10px;">
-            <textarea id="pDesc" placeholder="Deskripsi Singkat" class="search-input" style="border:1px solid #ddd; margin-bottom:10px; border-radius:10px;"></textarea>
-            
-            <button onclick="saveProduct()" class="btn-main" id="btnSave">Simpan</button>
-        </div>
+        <input type="hidden" id="editId" />
+
+        <input
+          type="text"
+          id="pName"
+          placeholder="Nama Barang"
+          class="search-input"
+          style="border: 1px solid #ddd; margin-bottom: 10px"
+        />
+        <input
+          type="text"
+          id="pCategory"
+          placeholder="Kategori"
+          class="search-input"
+          style="border: 1px solid #ddd; margin-bottom: 10px"
+        />
+        <input
+          type="number"
+          id="pPrice"
+          placeholder="Harga per hari (Rp)"
+          class="search-input"
+          style="border: 1px solid #ddd; margin-bottom: 10px"
+        />
+        <input
+          type="text"
+          id="pImg"
+          placeholder="Link URL Gambar"
+          class="search-input"
+          style="border: 1px solid #ddd; margin-bottom: 10px"
+        />
+        <textarea
+          id="pDesc"
+          placeholder="Deskripsi Singkat"
+          class="search-input"
+          style="
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 10px;
+          "
+        ></textarea>
+
+        <button onclick="saveProduct()" class="btn-main" id="btnSave">
+          Simpan
+        </button>
+      </div>
     </div>
 
     <div id="deleteModal" class="modal">
-        <div class="modal-content" style="text-align: center; max-width: 350px;">
-            <div style="background: #ffebee; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-                <i class="fas fa-trash-alt" style="font-size: 24px; color: #e74c3c;"></i>
-            </div>
-            <h3 style="margin: 0; color: #333;">Hapus Barang?</h3>
-            <p style="color: #666; font-size: 14px; margin: 10px 0 20px;">Tindakan ini tidak dapat dibatalkan.</p>
-            
-            <div style="display: flex; gap: 10px;">
-                <button onclick="closeDeleteModal()" class="btn-main" style="background: #ecf0f1; color: #333; margin-top: 0;">Batal</button>
-                <button onclick="confirmDelete()" class="btn-main" style="background: #e74c3c; margin-top: 0;">Ya, Hapus</button>
-            </div>
+      <div class="modal-content" style="text-align: center; max-width: 350px">
+        <div
+          style="
+            background: #ffebee;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+          "
+        >
+          <i
+            class="fas fa-trash-alt"
+            style="font-size: 24px; color: #e74c3c"
+          ></i>
         </div>
+        <h3 style="margin: 0; color: #333">Hapus Barang?</h3>
+        <p style="color: #666; font-size: 14px; margin: 10px 0 20px">
+          Tindakan ini tidak dapat dibatalkan.
+        </p>
+
+        <div style="display: flex; gap: 10px">
+          <button
+            onclick="closeDeleteModal()"
+            class="btn-main"
+            style="background: #ecf0f1; color: #333; margin-top: 0"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmDelete()"
+            class="btn-main"
+            style="background: #e74c3c; margin-top: 0"
+          >
+            Ya, Hapus
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -69,110 +157,129 @@
 
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
-    
+
     <script>
-        let currentUser = null;
-        let itemToDeleteId = null; // Variabel buat simpan ID yg mau dihapus
+      let currentUser = null;
+      let itemToDeleteId = null; // Variabel buat simpan ID yg mau dihapus
 
-        initData();
-        const localUser = checkAuth();
+      initData();
+      const localUser = checkAuth();
 
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-             firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    const ownerName = user.displayName || user.email;
-                    renderOrders(ownerName);
-                    renderInventory(ownerName);
-                } else {
-                    if(localUser) {
-                        currentUser = { displayName: localUser.name, email: localUser.name };
-                        renderOrders(localUser.name);
-                        renderInventory(localUser.name);
-                    } else {
-                        window.location.href = 'login.html';
-                    }
-                }
-            });
+      if (typeof firebase !== "undefined" && firebase.auth) {
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            currentUser = user;
+            const ownerName = user.displayName || user.email;
+            renderOrders(ownerName);
+            renderInventory(ownerName);
+          } else {
+            if (localUser) {
+              currentUser = {
+                displayName: localUser.name,
+                email: localUser.name,
+              };
+              renderOrders(localUser.name);
+              renderInventory(localUser.name);
+            } else {
+              window.location.href = "login.html";
+            }
+          }
+        });
+      } else {
+        if (localUser) {
+          currentUser = { displayName: localUser.name };
+          renderOrders(localUser.name);
+          renderInventory(localUser.name);
         } else {
-             if (localUser) {
-                currentUser = { displayName: localUser.name };
-                renderOrders(localUser.name);
-                renderInventory(localUser.name);
-             } else {
-                window.location.href = 'login.html';
-             }
+          window.location.href = "login.html";
+        }
+      }
+
+      // --- FUNGSI TAB ---
+      function switchTab(tabName) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => (el.style.display = "none"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document.getElementById(tabName).style.display = "block";
+        event.target.classList.add("active");
+
+        if (currentUser) {
+          const ownerName = currentUser.displayName || currentUser.email;
+          if (tabName === "orders") renderOrders(ownerName);
+          if (tabName === "inventory") renderInventory(ownerName);
+        }
+      }
+
+      // --- RENDER PESANAN ---
+      function renderOrders(ownerName) {
+        const list = getIncomingOrders(ownerName);
+        const container = document.getElementById("incomingOrderList");
+        container.innerHTML = "";
+
+        if (list.length === 0) {
+          container.innerHTML =
+            '<p style="color:#888;">Belum ada pesanan masuk.</p>';
+          return;
         }
 
-        // --- FUNGSI TAB ---
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabName).style.display = 'block';
-            event.target.classList.add('active');
-            
-            if(currentUser) {
-                const ownerName = currentUser.displayName || currentUser.email;
-                if(tabName === 'orders') renderOrders(ownerName);
-                if(tabName === 'inventory') renderInventory(ownerName);
-            }
-        }
-
-        // --- RENDER PESANAN ---
-        function renderOrders(ownerName) {
-            const list = getIncomingOrders(ownerName); 
-            const container = document.getElementById('incomingOrderList');
-            container.innerHTML = '';
-
-            if(list.length === 0) {
-                container.innerHTML = '<p style="color:#888;">Belum ada pesanan masuk.</p>';
-                return;
-            }
-
-            list.forEach(o => {
-                let actionBtns = '';
-                if(o.status === 'pending') {
-                    actionBtns = `
+        list.forEach((o) => {
+          let actionBtns = "";
+          if (o.status === "pending") {
+            actionBtns = `
                         <button onclick="processOrder('${o.id}', 'approved')" class="btn-main" style="width:auto; background:#2ecc71; padding:5px 15px; font-size:12px;">Terima</button>
                         <button onclick="processOrder('${o.id}', 'rejected')" class="btn-main" style="width:auto; background:#e74c3c; padding:5px 15px; font-size:12px;">Tolak</button>
                     `;
-                } else {
-                    actionBtns = `<span class="badge bg-${o.status}">${o.status.toUpperCase()}</span>`;
-                }
+          } else {
+            actionBtns = `<span class="badge bg-${
+              o.status
+            }">${o.status.toUpperCase()}</span>`;
+          }
 
-                container.innerHTML += `
+          container.innerHTML += `
                     <div style="border:1px solid #eee; padding:15px; border-radius:10px; margin-bottom:10px; background:#f9f9f9;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <b style="font-size:16px;">${o.productName}</b><br>
-                                <small style="color:#555;">Penyewa: <b>${o.renter}</b></small><br>
+                                <b style="font-size:16px;">${
+                                  o.productName
+                                }</b><br>
+                                <small style="color:#555;">Penyewa: <b>${
+                                  o.renter
+                                }</b></small><br>
                                 <small style="color:#555;">
-                                    📅 ${o.start} s.d ${o.end} <b style="color:#e67e22;">(${o.days} Hari)</b>
+                                    📅 ${o.start} s.d ${
+            o.end
+          } <b style="color:#e67e22;">(${o.days} Hari)</b>
                                 </small>
                             </div>
                             <div style="text-align:right;">
-                                <div style="font-weight:bold; color:#4a69bd; font-size:16px;">${formatRupiah(o.total)}</div>
+                                <div style="font-weight:bold; color:#4a69bd; font-size:16px;">${formatRupiah(
+                                  o.total
+                                )}</div>
                                 <div style="margin-top:8px;">${actionBtns}</div>
                             </div>
                         </div>
                     </div>
                 `;
-            });
-        }
+        });
+      }
 
-        function processOrder(id, status) {
-            updateOrderStatus(id, status);
-            if(currentUser) renderOrders(currentUser.displayName || currentUser.email); 
-        }
+      function processOrder(id, status) {
+        updateOrderStatus(id, status);
+        if (currentUser)
+          renderOrders(currentUser.displayName || currentUser.email);
+      }
 
-        // --- RENDER BARANG ---
-        function renderInventory(ownerName) {
-            const allProducts = getProducts();
-            const myProducts = allProducts.filter(p => p.owner === ownerName);
-            const container = document.getElementById('inventoryContainer'); 
-            
-            if(myProducts.length === 0) {
-                container.innerHTML = `
+      // --- RENDER BARANG ---
+      function renderInventory(ownerName) {
+        const allProducts = getProducts();
+        const myProducts = allProducts.filter((p) => p.owner === ownerName);
+        const container = document.getElementById("inventoryContainer");
+
+        if (myProducts.length === 0) {
+          container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: #888;">
                         <div style="background: #f0f2f5; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                             <i class="fas fa-box-open" style="font-size: 32px; color: #ccc;"></i>
@@ -183,10 +290,10 @@
                         </button>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            let html = `
+        let html = `
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
                     <div style="margin-right: auto; align-self: center; font-weight: bold; color: #555;">
                         Total: ${myProducts.length} Barang
@@ -198,127 +305,139 @@
                 <div class="catalog-grid">
             `;
 
-            myProducts.forEach(p => {
-                html += `
+        myProducts.forEach((p) => {
+          html += `
                     <div class="product-card">
-                        <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
+                        <div class="product-img"><img src="${p.img}" alt="${
+            p.name
+          }"></div>
                         <div class="product-info" style="flex:1;">
                             <div style="font-weight:bold;">${p.name}</div>
-                            <div style="color:#4a69bd; font-size:14px;">${formatRupiah(p.price)}/hari</div>
+                            <div style="color:#4a69bd; font-size:14px;">${formatRupiah(
+                              p.price
+                            )}/hari</div>
                         </div>
                         <div class="provider-actions">
-                            <button onclick="prepareEdit('${p.id}')" class="btn-action btn-edit"><i class="fas fa-edit"></i> Edit</button>
-                            <button onclick="openDeleteModal('${p.id}')" class="btn-action btn-delete"><i class="fas fa-trash"></i> Hapus</button>
+                            <button onclick="prepareEdit('${
+                              p.id
+                            }')" class="btn-action btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                            <button onclick="openDeleteModal('${
+                              p.id
+                            }')" class="btn-action btn-delete"><i class="fas fa-trash"></i> Hapus</button>
                         </div>
                     </div>
                 `;
-            });
+        });
 
-            html += `</div>`;
-            container.innerHTML = html;
+        html += `</div>`;
+        container.innerHTML = html;
+      }
+
+      // --- FUNGSI MODAL TAMBAH/EDIT ---
+      function openAddModal() {
+        document.getElementById("editId").value = "";
+        document.getElementById("pName").value = "";
+        document.getElementById("pCategory").value = "";
+        document.getElementById("pPrice").value = "";
+        document.getElementById("pImg").value = "";
+        document.getElementById("pDesc").value = "";
+        document.getElementById("modalTitle").innerText = "Tambah Barang Baru";
+        document.getElementById("btnSave").innerText = "Simpan Barang";
+        document.getElementById("addModal").style.display = "flex";
+      }
+
+      function prepareEdit(id) {
+        const products = JSON.parse(localStorage.getItem("products")) || [];
+        const product = products.find((p) => p.id == id);
+
+        if (!product) return;
+
+        document.getElementById("editId").value = product.id;
+        document.getElementById("pName").value = product.name;
+        document.getElementById("pCategory").value = product.category;
+        document.getElementById("pPrice").value = product.price;
+        document.getElementById("pImg").value = product.img;
+        document.getElementById("pDesc").value = product.desc;
+        document.getElementById("modalTitle").innerText = "Edit Barang";
+        document.getElementById("btnSave").innerText = "Update Barang";
+        document.getElementById("addModal").style.display = "flex";
+      }
+
+      function closeAddModal() {
+        document.getElementById("addModal").style.display = "none";
+      }
+
+      // --- FUNGSI SAVE (TANPA ALERT) ---
+      function saveProduct() {
+        if (!currentUser) return;
+
+        const editId = document.getElementById("editId").value;
+        const name = document.getElementById("pName").value;
+        const price = parseInt(document.getElementById("pPrice").value);
+        const category = document.getElementById("pCategory").value || "Umum";
+        const img =
+          document.getElementById("pImg").value ||
+          "https://via.placeholder.com/150";
+        const desc = document.getElementById("pDesc").value || "-";
+
+        if (!name || !price) {
+          alert("Nama dan Harga wajib diisi!");
+          return;
         }
 
-        // --- FUNGSI MODAL TAMBAH/EDIT ---
-        function openAddModal() { 
-            document.getElementById('editId').value = ""; 
-            document.getElementById('pName').value = "";
-            document.getElementById('pCategory').value = "";
-            document.getElementById('pPrice').value = "";
-            document.getElementById('pImg').value = "";
-            document.getElementById('pDesc').value = "";
-            document.getElementById('modalTitle').innerText = "Tambah Barang Baru";
-            document.getElementById('btnSave').innerText = "Simpan Barang";
-            document.getElementById('addModal').style.display = 'flex'; 
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+
+        if (editId) {
+          const index = products.findIndex((p) => p.id == editId);
+          if (index !== -1) {
+            products[index].name = name;
+            products[index].category = category;
+            products[index].price = price;
+            products[index].img = img;
+            products[index].desc = desc;
+            // HAPUS ALERT DISINI
+          }
+        } else {
+          const newProduct = {
+            id: Date.now(),
+            name: name,
+            category: category,
+            price: price,
+            owner: currentUser.displayName || currentUser.email,
+            img: img,
+            desc: desc,
+          };
+          products.push(newProduct);
+          // HAPUS ALERT DISINI
         }
 
-        function prepareEdit(id) {
-            const products = JSON.parse(localStorage.getItem('products')) || [];
-            const product = products.find(p => p.id == id);
+        localStorage.setItem("products", JSON.stringify(products));
+        closeAddModal(); // Langsung tutup
+        renderInventory(currentUser.displayName || currentUser.email); // Langsung refresh
+      }
 
-            if(!product) return;
+      // --- FUNGSI HAPUS (DENGAN MODAL) ---
 
-            document.getElementById('editId').value = product.id;
-            document.getElementById('pName').value = product.name;
-            document.getElementById('pCategory').value = product.category;
-            document.getElementById('pPrice').value = product.price;
-            document.getElementById('pImg').value = product.img;
-            document.getElementById('pDesc').value = product.desc;
-            document.getElementById('modalTitle').innerText = "Edit Barang";
-            document.getElementById('btnSave').innerText = "Update Barang";
-            document.getElementById('addModal').style.display = 'flex';
+      function openDeleteModal(id) {
+        itemToDeleteId = id; // Simpan ID barang yg mau dihapus di variabel global
+        document.getElementById("deleteModal").style.display = "flex";
+      }
+
+      function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+        itemToDeleteId = null;
+      }
+
+      function confirmDelete() {
+        if (itemToDeleteId) {
+          let products = JSON.parse(localStorage.getItem("products")) || [];
+          products = products.filter((p) => p.id != itemToDeleteId);
+          localStorage.setItem("products", JSON.stringify(products));
+
+          renderInventory(currentUser.displayName || currentUser.email);
+          closeDeleteModal();
         }
-
-        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
-
-        // --- FUNGSI SAVE (TANPA ALERT) ---
-        function saveProduct() {
-            if(!currentUser) return; 
-
-            const editId = document.getElementById('editId').value;
-            const name = document.getElementById('pName').value;
-            const price = parseInt(document.getElementById('pPrice').value);
-            const category = document.getElementById('pCategory').value || 'Umum';
-            const img = document.getElementById('pImg').value || 'https://via.placeholder.com/150';
-            const desc = document.getElementById('pDesc').value || '-';
-            
-            if(!name || !price) {
-                alert("Nama dan Harga wajib diisi!");
-                return;
-            }
-
-            let products = JSON.parse(localStorage.getItem('products')) || [];
-
-            if (editId) {
-                const index = products.findIndex(p => p.id == editId);
-                if (index !== -1) {
-                    products[index].name = name;
-                    products[index].category = category;
-                    products[index].price = price;
-                    products[index].img = img;
-                    products[index].desc = desc;
-                    // HAPUS ALERT DISINI
-                }
-            } else {
-                const newProduct = {
-                    id: Date.now(),
-                    name: name,
-                    category: category,
-                    price: price,
-                    owner: currentUser.displayName || currentUser.email, 
-                    img: img,
-                    desc: desc
-                };
-                products.push(newProduct);
-                // HAPUS ALERT DISINI
-            }
-
-            localStorage.setItem('products', JSON.stringify(products));
-            closeAddModal(); // Langsung tutup
-            renderInventory(currentUser.displayName || currentUser.email); // Langsung refresh
-        }
-
-        // --- FUNGSI HAPUS (DENGAN MODAL) ---
-        
-        function openDeleteModal(id) {
-            itemToDeleteId = id; // Simpan ID barang yg mau dihapus di variabel global
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-            itemToDeleteId = null;
-        }
-
-        function confirmDelete() {
-            if (itemToDeleteId) {
-                let products = JSON.parse(localStorage.getItem('products')) || [];
-                products = products.filter(p => p.id != itemToDeleteId); 
-                localStorage.setItem('products', JSON.stringify(products));
-                
-                renderInventory(currentUser.displayName || currentUser.email);
-                closeDeleteModal();
-            }
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

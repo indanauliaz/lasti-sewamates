@@ -1,70 +1,114 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SewaMates - Katalog</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <nav class="navbar">
-        <a href="index.html" class="logo">SewaMates</a>
-        <div id="nav-menu" class="nav-links">
-            </div>
+      <a href="index.html" class="logo">
+        <img
+          src="img/sewamates-logo.png"
+          alt="SewaMates Logo"
+          class="logo-img"
+        />
+        <span class="logo-text">
+          <span class="logo-black">Sewa</span
+          ><span class="logo-blue">Mates</span>
+        </span>
+      </a>
+
+      <div id="nav-menu" class="nav-links"></div>
     </nav>
 
     <div class="container">
-        <div class="search-container">
-            <h1>Cari Kebutuhan Kuliahmu</h1>
-            <div style="position: relative; max-width: 500px; margin: 0 auto;">
-                <input type="text" id="searchInput" class="search-input" placeholder="Cari kalkulator, jas lab, dll...">
-                <i class="fas fa-search" style="position: absolute; right: -5px; top: 18px; color: #aaa;"></i>
-            </div>
+      <div class="search-container">
+        <h1>Cari Kebutuhan Kuliahmu</h1>
+        <div style="position: relative; max-width: 500px; margin: 0 auto">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Cari kalkulator, jas lab, dll..."
+          />
+          <i
+            class="fas fa-search"
+            style="position: absolute; right: -5px; top: 18px; color: #aaa"
+          ></i>
         </div>
+      </div>
 
-        <div id="catalogGrid" class="catalog-grid">
-            </div>
+      <div id="catalogGrid" class="catalog-grid"></div>
     </div>
 
     <div id="productModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div style="text-align: center;">
-                <img id="modalImg" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
-                <h2 id="modalTitle" style="margin: 10px 0;">Nama Barang</h2>
-                <p id="modalOwner" style="color: #888; font-size: 14px;">Penyedia: -</p>
-                <div style="background: #f9f9f9; padding: 10px; border-radius: 10px; margin: 10px 0; text-align: center;">
-                    <p id="modalDesc" style="margin: 0; color: #555;">Deskripsi barang...</p>
-                </div>
-                <h3 id="modalPrice" style="color: var(--primary-color);">Rp 0 / hari</h3>
-                
-                <button onclick="checkLoginAndRent()" class="btn-main">Sewa Sekarang</button>
-            </div>
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div style="text-align: center">
+          <img
+            id="modalImg"
+            src=""
+            style="
+              width: 100%;
+              height: 200px;
+              object-fit: cover;
+              border-radius: 10px;
+            "
+          />
+          <h2 id="modalTitle" style="margin: 10px 0">Nama Barang</h2>
+          <p id="modalOwner" style="color: #888; font-size: 14px">
+            Penyedia: -
+          </p>
+          <div
+            style="
+              background: #f9f9f9;
+              padding: 10px;
+              border-radius: 10px;
+              margin: 10px 0;
+              text-align: center;
+            "
+          >
+            <p id="modalDesc" style="margin: 0; color: #555">
+              Deskripsi barang...
+            </p>
+          </div>
+          <h3 id="modalPrice" style="color: var(--primary-color)">
+            Rp 0 / hari
+          </h3>
+
+          <button onclick="checkLoginAndRent()" class="btn-main">
+            Sewa Sekarang
+          </button>
         </div>
+      </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
     <script src="js/data.js"></script>
-    <script src="js/auth.js"></script> 
-    <script src="js/catalog.js"></script> 
+    <script src="js/auth.js"></script>
+    <script src="js/catalog.js"></script>
 
     <script>
-        // Init Halaman
-        initData();     // Memuat data barang
-        checkAuth();    // Memeriksa status login dan merender Navbar
-        renderCatalog(getProducts()); // Menampilkan katalog
+      // Init Halaman
+      initData(); // Memuat data barang
+      checkAuth(); // Memeriksa status login dan merender Navbar
+      renderCatalog(getProducts()); // Menampilkan katalog
 
-        // Listener Search Realtime
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                handleSearch(e.target.value);
-            });
-        }
+      // Listener Search Realtime
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+          handleSearch(e.target.value);
+        });
+      }
     </script>
-</body>
+  </body>
 </html>

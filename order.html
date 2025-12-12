@@ -1,85 +1,254 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Sewa</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <nav class="navbar">
-        <a href="index.html" class="logo">SewaMates</a>
-        <div id="nav-menu" class="nav-links"></div>
+      <a href="index.html" class="logo">
+        <img
+          src="img/sewamates-logo.png"
+          alt="SewaMates Logo"
+          class="logo-img"
+        />
+        <span class="logo-text">
+          <span class="logo-black">Sewa</span
+          ><span class="logo-blue">Mates</span>
+        </span>
+      </a>
+      <div id="nav-menu" class="nav-links"></div>
     </nav>
 
     <div class="container">
-        <a href="index.html" style="display:inline-block; margin-bottom:20px; text-decoration:none; color:#555;">
-            <i class="fas fa-arrow-left"></i> Kembali ke Katalog
-        </a>
+      <a
+        href="index.html"
+        style="
+          display: inline-block;
+          margin-bottom: 20px;
+          text-decoration: none;
+          color: #555;
+        "
+      >
+        <i class="fas fa-arrow-left"></i> Kembali ke Katalog
+      </a>
 
-        <div style="background: white; border-radius: 15px; padding: 30px; display:flex; gap:30px; flex-wrap:wrap; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">
-            
-            <div style="flex:1; min-width:300px;">
-                <img id="itemImg" src="" alt="Gambar" style="width:100%; height:300px; object-fit:cover; border-radius:15px; background:#eee;">
-            </div>
-            
-            <div style="flex:1; min-width:300px;">
-                <h1 id="itemName" style="margin-top:0;">Memuat Barang...</h1>
-                <p style="color:#666;">Penyedia: <b id="itemOwner" style="color:#333;">...</b></p>
-                <div style="background:#f8f9fa; padding:15px; border-radius:10px; margin:15px 0;">
-                    <p id="itemDesc" style="margin:0; font-size:14px; color:#555;">...</p>
-                </div>
-                
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                
-                <h3 style="margin-bottom:15px;">Atur Jadwal Sewa</h3>
-                <div style="display:flex; gap:15px; margin-bottom:15px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;"> 
-                        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Mulai</label>
-                        <input type="date" id="startDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
-                    </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Selesai</label>
-                        <input type="date" id="endDate" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">Metode Pengambilan</label>
-                    <select id="pickupMethod" onchange="calc()" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; box-sizing: border-box; background:white;">
-                        <option value="meetup">🤝 Ambil Langsung (Gratis)</option>
-                        <option value="locker">🔐 Smart Locker ITB (+Rp 5.000)</option>
-                    </select>
-                </div>
-
-                <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <div style="display:flex; justify-content:space-between; font-size:14px; color:#666; margin-bottom: 5px;">
-                        <span>Biaya Sewa (<span id="dayCount">0</span> Hari)</span>
-                        <span id="rentCost">Rp 0</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-size:14px; color:#666; margin-bottom: 5px;">
-                        <span>Biaya Layanan</span>
-                        <span>Rp 2.000</span>
-                    </div>
-                    <div id="lockerRow" style="display:none; justify-content:space-between; font-size:14px; color:#27ae60; margin-bottom: 5px;">
-                        <span>Biaya Smart Locker</span>
-                        <span>+ Rp 5.000</span>
-                    </div>
-                    
-                    <hr style="border:0; border-top:1px dashed #ccc; margin: 10px 0;">
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:bold; color:#333;">Total Pembayaran</span>
-                        <h2 id="totalPrice" data-total="0" data-days="0" style="color: var(--primary-color); margin:0;">Rp 0</h2>
-                    </div>
-                </div>
-                
-                <button id="btnSewa" onclick="submitOrder()" class="btn-main" disabled style="opacity: 0.6; cursor: not-allowed;">
-                    Pilih Tanggal Dulu
-                </button>
-            </div>
+      <div
+        style="
+          background: white;
+          border-radius: 15px;
+          padding: 30px;
+          display: flex;
+          gap: 30px;
+          flex-wrap: wrap;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        "
+      >
+        <div style="flex: 1; min-width: 300px">
+          <img
+            id="itemImg"
+            src=""
+            alt="Gambar"
+            style="
+              width: 100%;
+              height: 300px;
+              object-fit: cover;
+              border-radius: 15px;
+              background: #eee;
+            "
+          />
         </div>
+
+        <div style="flex: 1; min-width: 300px">
+          <h1 id="itemName" style="margin-top: 0">Memuat Barang...</h1>
+          <p style="color: #666">
+            Penyedia: <b id="itemOwner" style="color: #333">...</b>
+          </p>
+          <div
+            style="
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 10px;
+              margin: 15px 0;
+            "
+          >
+            <p id="itemDesc" style="margin: 0; font-size: 14px; color: #555">
+              ...
+            </p>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0" />
+
+          <h3 style="margin-bottom: 15px">Atur Jadwal Sewa</h3>
+          <div
+            style="
+              display: flex;
+              gap: 15px;
+              margin-bottom: 15px;
+              flex-wrap: wrap;
+            "
+          >
+            <div style="flex: 1; min-width: 200px">
+              <label
+                style="
+                  font-size: 12px;
+                  font-weight: bold;
+                  display: block;
+                  margin-bottom: 5px;
+                "
+                >Mulai</label
+              >
+              <input
+                type="date"
+                id="startDate"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  border: 1px solid #ddd;
+                  border-radius: 8px;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+            <div style="flex: 1; min-width: 200px">
+              <label
+                style="
+                  font-size: 12px;
+                  font-weight: bold;
+                  display: block;
+                  margin-bottom: 5px;
+                "
+                >Selesai</label
+              >
+              <input
+                type="date"
+                id="endDate"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  border: 1px solid #ddd;
+                  border-radius: 8px;
+                  box-sizing: border-box;
+                "
+              />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px">
+            <label
+              style="
+                font-size: 12px;
+                font-weight: bold;
+                display: block;
+                margin-bottom: 5px;
+              "
+              >Metode Pengambilan</label
+            >
+            <select
+              id="pickupMethod"
+              onchange="calc()"
+              style="
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-sizing: border-box;
+                background: white;
+              "
+            >
+              <option value="meetup">🤝 Ambil Langsung (Gratis)</option>
+              <option value="locker">🔐 Smart Locker ITB (+Rp 5.000)</option>
+            </select>
+          </div>
+
+          <div
+            style="
+              background: #f9f9f9;
+              padding: 15px;
+              border-radius: 10px;
+              margin-bottom: 20px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 5px;
+              "
+            >
+              <span>Biaya Sewa (<span id="dayCount">0</span> Hari)</span>
+              <span id="rentCost">Rp 0</span>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 5px;
+              "
+            >
+              <span>Biaya Layanan</span>
+              <span>Rp 2.000</span>
+            </div>
+            <div
+              id="lockerRow"
+              style="
+                display: none;
+                justify-content: space-between;
+                font-size: 14px;
+                color: #27ae60;
+                margin-bottom: 5px;
+              "
+            >
+              <span>Biaya Smart Locker</span>
+              <span>+ Rp 5.000</span>
+            </div>
+
+            <hr
+              style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0"
+            />
+
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <span style="font-weight: bold; color: #333"
+                >Total Pembayaran</span
+              >
+              <h2
+                id="totalPrice"
+                data-total="0"
+                data-days="0"
+                style="color: var(--primary-color); margin: 0"
+              >
+                Rp 0
+              </h2>
+            </div>
+          </div>
+
+          <button
+            id="btnSewa"
+            onclick="submitOrder()"
+            class="btn-main"
+            disabled
+            style="opacity: 0.6; cursor: not-allowed"
+          >
+            Pilih Tanggal Dulu
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -89,158 +258,177 @@
     <script src="js/auth.js"></script>
 
     <script>
-        let currentProduct = null;
-        let currentUser = null;
-        
-        const ADMIN_FEE = 2000;
-        const LOCKER_FEE = 5000;
+      let currentProduct = null;
+      let currentUser = null;
 
-        // Init
-        initData();
-        checkAuth(); 
+      const ADMIN_FEE = 2000;
+      const LOCKER_FEE = 5000;
 
-        // FIREBASE AUTH
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    loadProductData();
-                } else {
-                    const localUser = JSON.parse(sessionStorage.getItem('currentUser'));
-                    if(localUser) {
-                        currentUser = { displayName: localUser.name, email: localUser.name };
-                        loadProductData();
-                    } else {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const itemId = urlParams.get('id');
-                        if(itemId) sessionStorage.setItem('pendingOrderId', itemId);
-                        window.location.href = 'login.html';
-                    }
-                }
-            });
+      // Init
+      initData();
+      checkAuth();
+
+      // FIREBASE AUTH
+      if (typeof firebase !== "undefined" && firebase.auth) {
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            currentUser = user;
+            loadProductData();
+          } else {
+            const localUser = JSON.parse(sessionStorage.getItem("currentUser"));
+            if (localUser) {
+              currentUser = {
+                displayName: localUser.name,
+                email: localUser.name,
+              };
+              loadProductData();
+            } else {
+              const urlParams = new URLSearchParams(window.location.search);
+              const itemId = urlParams.get("id");
+              if (itemId) sessionStorage.setItem("pendingOrderId", itemId);
+              window.location.href = "login.html";
+            }
+          }
+        });
+      } else {
+        // Fallback total kalo ga ada firebase
+        const localUser = JSON.parse(sessionStorage.getItem("currentUser"));
+        if (localUser) {
+          currentUser = { displayName: localUser.name, email: localUser.name };
+          loadProductData();
         } else {
-            // Fallback total kalo ga ada firebase
-            const localUser = JSON.parse(sessionStorage.getItem('currentUser'));
-            if(localUser) {
-                currentUser = { displayName: localUser.name, email: localUser.name };
-                loadProductData();
+          window.location.href = "login.html";
+        }
+      }
+
+      // LOAD DATA
+      function loadProductData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = parseInt(urlParams.get("id")) || urlParams.get("id"); // Support string/int
+        currentProduct = getProductById(itemId);
+
+        if (currentProduct) {
+          const user = firebase.auth().currentUser;
+          let currentDisplayName = null;
+
+          if (user && user.email.endsWith("@mahasiswa.itb.ac.id")) {
+            // 2. Hitung Display Name
+            currentDisplayName = (
+              user.displayName || user.email.split("@")[0]
+            ).trim();
+          }
+
+          // Cek Kepemilikan (Pencegahan Lapisan Ke-3)
+          if (
+            currentDisplayName &&
+            currentProduct.owner.toLowerCase().trim() ===
+              currentDisplayName.toLowerCase()
+          ) {
+            alert("⚠️ Anda tidak diizinkan menyewa barang milik Anda sendiri.");
+            window.location.href = "index.html";
+            return;
+          }
+
+          document.getElementById("itemName").innerText = currentProduct.name;
+          document.getElementById("itemOwner").innerText = currentProduct.owner;
+          document.getElementById("itemDesc").innerText = currentProduct.desc;
+          document.getElementById("itemImg").src = currentProduct.img;
+        } else {
+          document.querySelector(
+            ".container"
+          ).innerHTML = `<h2 style='text-align:center'>Barang tidak ditemukan</h2>`;
+        }
+      }
+
+      // KALKULATOR HARGA
+      function calc() {
+        if (!currentProduct) return;
+
+        const startVal = document.getElementById("startDate").value;
+        const endVal = document.getElementById("endDate").value;
+        const pickupMethod = document.getElementById("pickupMethod").value;
+
+        const btn = document.getElementById("btnSewa");
+        const rentCostEl = document.getElementById("rentCost");
+        const totalEl = document.getElementById("totalPrice");
+        const dayCountEl = document.getElementById("dayCount");
+        const lockerRow = document.getElementById("lockerRow");
+
+        btn.disabled = true;
+        btn.style.opacity = "0.6";
+        btn.style.cursor = "not-allowed";
+        btn.innerText = "Pilih Tanggal Dulu";
+
+        if (startVal && endVal) {
+          const d1 = new Date(startVal);
+          const d2 = new Date(endVal);
+
+          if (d2 >= d1) {
+            const diffTime = Math.abs(d2 - d1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            // 1. Hitung Sewa
+            const baseRent = diffDays * currentProduct.price;
+
+            // 2. Hitung Locker
+            let lockerCost = 0;
+            if (pickupMethod === "locker") {
+              lockerCost = LOCKER_FEE;
+              lockerRow.style.display = "flex";
             } else {
-                window.location.href = 'login.html';
+              lockerRow.style.display = "none";
             }
+
+            // 3. Grand Total
+            const grandTotal = baseRent + ADMIN_FEE + lockerCost;
+
+            // 4. Update Tampilan
+            dayCountEl.innerText = diffDays;
+            rentCostEl.innerText = formatRupiah(baseRent);
+            totalEl.innerText = formatRupiah(grandTotal);
+
+            totalEl.dataset.total = grandTotal;
+            totalEl.dataset.days = diffDays;
+
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+            btn.innerText = "Ajukan Penyewaan";
+          } else {
+            btn.innerText = "Tanggal Invalid!";
+          }
         }
+      }
 
-        // LOAD DATA
-        function loadProductData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const itemId = parseInt(urlParams.get('id')) || urlParams.get('id'); // Support string/int
-            currentProduct = getProductById(itemId); 
+      document.getElementById("startDate").addEventListener("change", calc);
+      document.getElementById("endDate").addEventListener("change", calc);
 
-            if(currentProduct) {
-                const user = firebase.auth().currentUser;
-                let currentDisplayName = null;
-                
-                if (user && user.email.endsWith('@mahasiswa.itb.ac.id')) {
-                    // 2. Hitung Display Name
-                    currentDisplayName = (user.displayName || user.email.split('@')[0]).trim();
-                }
+      // SUBMIT
+      function submitOrder() {
+        if (!currentUser || !currentProduct) return;
 
-                // Cek Kepemilikan (Pencegahan Lapisan Ke-3)
-                if (currentDisplayName && currentProduct.owner.toLowerCase().trim() === currentDisplayName.toLowerCase()) {
-                    alert("⚠️ Anda tidak diizinkan menyewa barang milik Anda sendiri.");
-                    window.location.href = 'index.html';
-                    return; 
-                }
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const days = document.getElementById("totalPrice").dataset.days;
+        const total = document.getElementById("totalPrice").dataset.total;
 
-                document.getElementById('itemName').innerText = currentProduct.name;
-                document.getElementById('itemOwner').innerText = currentProduct.owner;
-                document.getElementById('itemDesc').innerText = currentProduct.desc;
-                document.getElementById('itemImg').src = currentProduct.img;
-            } else {
-                document.querySelector('.container').innerHTML = `<h2 style='text-align:center'>Barang tidak ditemukan</h2>`;
-            }
-        }
+        const selectEl = document.getElementById("pickupMethod");
+        const methodText = selectEl.options[selectEl.selectedIndex].text;
 
-        // KALKULATOR HARGA
-        function calc() {
-            if(!currentProduct) return;
+        const renterName = currentUser.displayName || currentUser.email;
 
-            const startVal = document.getElementById('startDate').value;
-            const endVal = document.getElementById('endDate').value;
-            const pickupMethod = document.getElementById('pickupMethod').value;
-            
-            const btn = document.getElementById('btnSewa');
-            const rentCostEl = document.getElementById('rentCost');
-            const totalEl = document.getElementById('totalPrice');
-            const dayCountEl = document.getElementById('dayCount');
-            const lockerRow = document.getElementById('lockerRow');
+        const newOrderId = createOrder(
+          currentProduct,
+          renterName,
+          start,
+          end,
+          days,
+          total,
+          methodText
+        );
 
-            btn.disabled = true;
-            btn.style.opacity = '0.6';
-            btn.style.cursor = 'not-allowed';
-            btn.innerText = "Pilih Tanggal Dulu";
-
-            if(startVal && endVal) {
-                const d1 = new Date(startVal);
-                const d2 = new Date(endVal);
-                
-                if (d2 >= d1) {
-                    const diffTime = Math.abs(d2 - d1);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-                    
-                    // 1. Hitung Sewa
-                    const baseRent = diffDays * currentProduct.price;
-                    
-                    // 2. Hitung Locker
-                    let lockerCost = 0;
-                    if (pickupMethod === 'locker') {
-                        lockerCost = LOCKER_FEE;
-                        lockerRow.style.display = 'flex';
-                    } else {
-                        lockerRow.style.display = 'none';
-                    }
-
-                    // 3. Grand Total
-                    const grandTotal = baseRent + ADMIN_FEE + lockerCost;
-
-                    // 4. Update Tampilan
-                    dayCountEl.innerText = diffDays;
-                    rentCostEl.innerText = formatRupiah(baseRent);
-                    totalEl.innerText = formatRupiah(grandTotal);
-                    
-                    totalEl.dataset.total = grandTotal; 
-                    totalEl.dataset.days = diffDays;
-
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                    btn.innerText = "Ajukan Penyewaan";
-                } else {
-                    btn.innerText = "Tanggal Invalid!";
-                }
-            }
-        }
-
-        document.getElementById('startDate').addEventListener('change', calc);
-        document.getElementById('endDate').addEventListener('change', calc);
-
-        // SUBMIT
-        function submitOrder() {
-            if(!currentUser || !currentProduct) return;
-
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
-            const days = document.getElementById('totalPrice').dataset.days;
-            const total = document.getElementById('totalPrice').dataset.total;
-            
-            const selectEl = document.getElementById('pickupMethod');
-            const methodText = selectEl.options[selectEl.selectedIndex].text;
-            
-            const renterName = currentUser.displayName || currentUser.email;
-            
-            const newOrderId = createOrder(currentProduct, renterName, start, end, days, total, methodText);
-            
-            window.location.href = `payment.html?orderId=${newOrderId}`;
-        }
+        window.location.href = `payment.html?orderId=${newOrderId}`;
+      }
     </script>
-</body>
+  </body>
 </html>
