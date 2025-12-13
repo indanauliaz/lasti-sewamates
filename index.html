@@ -91,24 +91,44 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script src="js/data.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/catalog.js"></script>
 
     <script>
-      // Init Halaman
-      initData(); // Memuat data barang
-      checkAuth(); // Memeriksa status login dan merender Navbar
-      renderCatalog(getProducts()); // Menampilkan katalog
+        // Inisialisasi
+        initData(); 
+        checkAuth(); // Cek login & render navbar
 
-      // Listener Search Realtime
-      const searchInput = document.getElementById("searchInput");
-      if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-          handleSearch(e.target.value);
-        });
-      }
+        // 🔥 CARA BARU LOAD KATALOG (Pakai Loading)
+        async function loadCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            
+            // Kasih tulisan loading biar user gak bingung
+            if(grid) grid.innerHTML = '<p style="text-align:center; margin-top:50px;">Sedang memuat data dari Cloud...</p>';
+
+            // Tunggu data dari Firebase
+            const products = await getProducts(); 
+            
+            // Setelah data datang, baru render
+            renderCatalog(products);
+        }
+
+        // Panggil fungsinya
+        loadCatalog();
+
+        // Fungsi Search (Update juga biar support Async)
+        async function handleSearch(keyword) {
+            const allProducts = await getProducts(); // Tunggu download data
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(keyword.toLowerCase()) || 
+                p.category.toLowerCase().includes(keyword.toLowerCase())
+            );
+            renderCatalog(filtered);
+        }
     </script>
   </body>
 </html>

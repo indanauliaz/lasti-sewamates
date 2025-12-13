@@ -18,6 +18,7 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 }
 
 const auth = firebase.auth();
+const db = firebase.firestore();
 const provider = new firebase.auth.OAuthProvider('microsoft.com');
 provider.setCustomParameters({ prompt: 'select_account' });
 

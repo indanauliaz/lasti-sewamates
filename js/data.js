@@ -1,79 +1,50 @@
-// DATA DUMMY PRODUK
-const defaultProducts = [
-    { 
-        id: 1, 
-        name: 'Kalkulator FX-991', 
-        category: 'Alat Tulis', 
-        price: 5000, 
-        owner: 'belinda', 
-        img: 'img/kalku.jpeg', 
-        desc: 'Cocok untuk ujian Fisdas/Kalkulus. Baterai baru ganti.' 
-    },
-    { 
-        id: 2, 
-        name: 'Jas Lab Putih (L)', 
-        category: 'Pakaian', 
-        price: 10000, 
-        owner: 'kamala', 
-        img: 'img/jaslab.jpg', 
-        desc: 'Bahan oxford, ukuran L, bersih habis di-laundry.' 
-    },
-    { 
-        id: 3, 
-        name: 'Sleeping Bag Eiger', 
-        category: 'Outdoor', 
-        price: 25000, 
-        owner: 'farrel', 
-        img: 'img/sleepingbag.jpg', 
-        desc: 'Untuk kemping di Dago. Hangat dan ringan.' 
-    },
-    { 
-        id: 4, 
-        name: 'Kamera DSLR Canon', 
-        category: 'Elektronik', 
-        price: 50000, 
-        owner: 'belinda', 
-        img: 'img/kamera.jpg', 
-        desc: 'Cocok buat dokumentasi acara himpunan. Lensa 50mm.' 
-    },
-    { 
-        id: 5, 
-        name: 'Drone DJI Mini', 
-        category: 'Elektronik', 
-        price: 70000, 
-        owner: 'budi', 
-        img: 'img/drone.jpg', 
-        desc: 'Drone kecil, cocok buat pemula. Termasuk 2 baterai.' 
-    }
-];
+// (Kita tidak butuh defaultProducts lagi karena data sudah di Cloud)
 
-// FUNGSI INIT
 function initData() {
-    if (!localStorage.getItem('products')) {
-        localStorage.setItem('products', JSON.stringify(defaultProducts));
+    // Kosongkan saja, atau gunakan untuk listener realtime nanti
+    console.log("Menghubungkan ke Firebase...");
+}
+
+// 🔥 FUNGSI BARU: Ambil Produk dari Firestore (Async)
+async function getProducts() {
+    try {
+        // Minta data ke collection 'products'
+        const snapshot = await db.collection('products').get();
+        
+        // Ubah formatnya biar jadi Array biasa
+        const products = snapshot.docs.map(doc => ({
+            id: doc.id,       // Ambil ID dokumen Firebase
+            ...doc.data()     // Ambil sisa datanya (name, price, dll)
+        }));
+
+        return products;
+    } catch (error) {
+        console.error("Gagal ambil data:", error);
+        return [];
     }
-    // Pastikan database orders juga ada biar gak error null
-    if (!localStorage.getItem('orders')) {
-        localStorage.setItem('orders', JSON.stringify([]));
+}
+
+// 🔥 Cari Produk by ID (Juga Async karena harus nunggu data)
+async function getProductById(id) {
+    try {
+        const doc = await db.collection('products').doc(id).get();
+        if (doc.exists) {
+            return { id: doc.id, ...doc.data() };
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error cari barang:", error);
+        return null;
     }
 }
 
-// FUNGSI GET PRODUCTS
-function getProducts() {
-    return JSON.parse(localStorage.getItem('products')) || [];
+// Helper Format Rupiah (Tetap sama)
+function formatRupiah(angka) {
+    return 'Rp ' + (angka || 0).toLocaleString('id-ID');
 }
 
-// 💡 FUNGSI PENTING: Cari Produk berdasarkan ID
-function getProductById(id) {
-    const products = getProducts();
-    // PENTING: Pakai '==' biar angka (1) dan string ('1') dianggap sama
-    return products.find(p => p.id == id);
-}
-
-// Helper format Rupiah
-function formatRupiah(angka) { 
-    return 'Rp ' + parseInt(angka).toLocaleString('id-ID'); 
-}
+// ... (Fungsi Order biarkan dulu, kita fokus nampilin barang dulu) ...
 
 // --- LOGIKA ORDER ---
 
