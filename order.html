@@ -297,28 +297,28 @@
 
         try {
             // KIRIM KE FIREBASE
-            await db.collection('orders').add({
+            // Kita simpan ke variabel 'docRef' biar bisa ambil ID-nya
+            const docRef = await db.collection('orders').add({
                 productId: currentProduct.id,
                 productName: currentProduct.name,
                 productImg: currentProduct.img,
                 owner: currentProduct.owner,
                 renterName: currentUser.displayName || currentUser.email,
                 
-                status: 'pending',
+                status: 'pending',       // Status pesanan
+                paymentStatus: 'unpaid', // Status pembayaran awal
                 days: days,
                 totalPrice: total,
-                pickupMethod: pickupMethod, // Simpan metode pengambilan
+                pickupMethod: pickupMethod,
                 
                 startDate: firebase.firestore.Timestamp.fromDate(new Date(startVal)),
                 endDate: firebase.firestore.Timestamp.fromDate(new Date(endVal)),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            
-
-            alert("✅ Permintaan Sewa Berhasil Dikirim!");
-            // Redirect ke halaman Provider tab Pesanan (atau index)
-            window.location.href = "index.html"; 
+            // 🔥 PERUBAHAN DISINI:
+            // Jangan ke index, tapi ke payment.html bawa Order ID
+            window.location.href = `payment.html?orderId=${docRef.id}`;
 
         } catch (error) {
             console.error("Error submit:", error);

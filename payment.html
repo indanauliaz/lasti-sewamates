@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Pembayaran QRIS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <div class="qris-container">
+        <div class="qris-container" style="text-align: center; margin-top: 50px;">
             <h2>Scan QRIS</h2>
-            <p>Total Tagihan: <b id="payAmount">Rp 0</b></p>
+            <p>Total Tagihan: <b id="payAmount">Memuat...</b></p>
             
             <div style="position: relative; overflow: hidden; width: 200px; height: 200px; margin: 20px auto; border: 2px solid #333;">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" width="100%">
                 <div class="scan-line"></div>
             </div>
 
-            <p>Otomatis mengecek pembayaran dalam <span id="timer">5</span> detik...</p>
+            <p>Otomatis mengecek pembayaran dalam <span id="timer" style="font-weight:bold; color:red;">5</span> detik...</p>
         </div>
     </div>
 
@@ -28,45 +30,74 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    
     <script>
         initData();
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('orderId');
-        
-        // Ambil info order buat nampilin harga
-        const orders = JSON.parse(localStorage.getItem('orders'));
-        const order = orders.find(o => o.id === orderId);
-        
-        if(order) {
-            document.getElementById('payAmount').innerText = formatRupiah(order.total);
+
+        // 1. Ambil Data dari FIREBASE (Bukan LocalStorage)
+        async function loadOrderInfo() {
+            if(!orderId) return;
+            try {
+                const doc = await db.collection('orders').doc(orderId).get();
+                if(doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('payAmount').innerText = formatRupiah(data.totalPrice || data.total);
+                    startTimer(); // Mulai timer kalau data udah dapet
+                }
+            } catch(e) { console.log(e); }
         }
 
-        // Timer 5 Detik
-        let timeLeft = 5;
-        const timerEl = document.getElementById('timer');
-        
-        const countdown = setInterval(() => {
-            timeLeft--;
-            timerEl.innerText = timeLeft;
-            
-            if(timeLeft <= 0) {
-                clearInterval(countdown);
-                finishPayment();
-            }
-        }, 1000);
+        loadOrderInfo();
 
-        function finishPayment() {
-            // Update status jadi 'pending' (Menunggu konfirmasi provider)
-            updateOrderStatus(orderId, 'pending');
+        // 2. Timer 5 Detik (Logic Tetap)
+        function startTimer() {
+            let timeLeft = 5;
+            const timerEl = document.getElementById('timer');
             
-            // Tampil Popup
-            document.getElementById('successModal').style.display = 'flex';
-            
-            // Redirect ke Profil setelah 2 detik
-            setTimeout(() => {
-                window.location.href = 'profile.html';
-            }, 3000);
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    finishPayment();
+                }
+            }, 1000);
+        }
+
+        // 3. Update status ke FIREBASE
+        async function finishPayment() {
+            try {
+                // Update pembayaran jadi 'paid'
+                // Status order tetap 'pending' (menunggu provider terima)
+                await db.collection('orders').doc(orderId).update({
+                    paymentStatus: 'paid'
+                });
+                
+                // Tampil Popup
+                document.getElementById('successModal').style.display = 'flex';
+                
+                // Redirect ke Profile
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 3000);
+
+            } catch (error) {
+                console.error("Gagal update:", error);
+                alert("Terjadi kesalahan koneksi.");
+            }
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         }
     </script>
 </body>

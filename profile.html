@@ -19,8 +19,7 @@
           class="logo-img"
         />
         <span class="logo-text">
-          <span class="logo-black">Sewa</span
-          ><span class="logo-blue">Mates</span>
+          <span class="logo-black">Sewa</span><span class="logo-blue">Mates</span>
         </span>
       </a>
 
@@ -49,10 +48,11 @@
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid #eee;
+            background-color: #ddd;
           "
         />
 
-        <div>
+        <div style="flex: 1">
           <h2 id="profileName" style="margin: 0">Memuat...</h2>
           <p id="profileEmail" style="margin: 0; font-size: 14px; color: #888">
             ...
@@ -63,16 +63,20 @@
               margin-top: 10px;
               display: inline-block;
               padding: 5px 12px;
-              background: #eee;
+              background: #e2e3e5;
               border-radius: 20px;
               font-size: 12px;
               font-weight: 600;
-              color: #555;
+              color: #41464b;
             "
           >
-            Mode: ...
+            Mode: Penyewa
           </div>
         </div>
+
+        <button onclick="logout()" class="btn-main" style="background:#e74c3c; width:auto; padding:8px 15px; font-size:12px;">
+            <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
       </div>
 
       <div id="section-provider" style="display: none">
@@ -141,18 +145,17 @@
         </div>
       </div>
 
-      <div id="section-renter" style="display: none">
+      <div id="section-renter" style="display: block">
         <h3 style="margin-bottom: 15px; color: #4a69bd">
           📦 Riwayat Pesanan Saya
         </h3>
         <div id="myOrderList" style="margin-top: 15px">
-          <p>Memuat riwayat...</p>
+          <p style="text-align:center; color:#888;">Memuat riwayat...</p>
         </div>
       </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
@@ -162,131 +165,160 @@
     <script>
       // Init Data & Navbar
       initData();
-      checkAuth(); // Render Navbar atas
+      const localUser = checkAuth(); // Render Navbar atas
+      let currentUser = null;
 
       // Tunggu Firebase Siap
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          renderProfilePage(user);
-        } else {
-          window.location.href = "login.html";
-        }
-      });
+      if (typeof firebase !== "undefined" && firebase.auth) {
+          firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+              currentUser = user;
+              renderProfilePage(user);
+            } else if (localUser) {
+                // Support login localStorage
+                currentUser = { displayName: localUser.name, email: localUser.name };
+                renderProfilePage(currentUser);
+            } else {
+              window.location.href = "login.html";
+            }
+          });
+      }
 
-      function renderProfilePage(user) {
+      async function renderProfilePage(user) {
+        const name = user.displayName || user.email;
+        const email = user.email;
+
         // 1. ISI HEADER PROFIL
-        const displayName = user.displayName || user.email.split("@")[0];
-        const photoURL =
-          user.photoURL ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            displayName
-          )}&background=0D8ABC&color=fff`;
-
-        document.getElementById("profileName").innerText = displayName;
-        document.getElementById("profileEmail").innerText = user.email;
+        document.getElementById("profileName").innerText = name;
+        document.getElementById("profileEmail").innerText = email;
+        
+        // Avatar Dummy Keren
+        const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4a69bd&color=fff&size=128`;
         document.getElementById("profileImg").src = photoURL;
-        document.getElementById("profileImg").onerror = function () {
-          this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            displayName
-          )}&background=0D8ABC&color=fff`;
-        };
 
-        // 2. CEK MODE APLIKASI
-        const currentMode = sessionStorage.getItem("appMode") || "renter";
-        const roleBadge = document.getElementById("profileRoleBadge");
+        // 2. LOAD RIWAYAT PESANAN (RENTER MODE - DEFAULT)
+        loadRenterHistory(name);
 
-        if (currentMode === "provider") {
-          // --- MODE PENYEDIA ---
-          roleBadge.innerText = "Mode: Penyedia Barang";
-          roleBadge.style.background = "#d1edfc";
-          roleBadge.style.color = "#055160";
+        // 3. LOAD STATISTIK TOKO (PROVIDER MODE - BACKGROUND)
+        // Kita hitung aja iseng-iseng, siapa tau dia punya toko juga
+        loadProviderStats(name);
+      }
 
-          document.getElementById("section-provider").style.display = "block";
-          document.getElementById("section-renter").style.display = "none";
-
-          // Hitung Statistik
-          // Nama user harus konsisten dengan yang disimpan saat upload barang/order
-          const ownerName = displayName || user.email;
-
-          const allProducts = getProducts();
-          const myProducts = allProducts.filter((p) => p.owner === ownerName);
-
-          const incomingOrders = getIncomingOrders(ownerName);
-          const successOrders = incomingOrders.filter(
-            (o) => o.status === "approved" || o.status === "done"
-          );
-
-          // Hitung Duit
-          const revenue = successOrders.reduce(
-            (sum, order) => sum + parseInt(order.total),
-            0
-          );
-
-          document.getElementById("totalRevenue").innerText =
-            formatRupiah(revenue);
-          document.getElementById("totalItems").innerText =
-            myProducts.length + " Unit";
-          document.getElementById("totalTransactions").innerText =
-            successOrders.length + " Kali";
-        } else {
-          // --- MODE PENYEWA ---
-          roleBadge.innerText = "Mode: Penyewa";
-          roleBadge.style.background = "#e2e3e5";
-          roleBadge.style.color = "#41464b";
-
-          document.getElementById("section-provider").style.display = "none";
-          document.getElementById("section-renter").style.display = "block";
-
-          // Render List Belanja
-          const renterName = displayName || user.email;
-          const myOrders = getOrdersByRenter(renterName);
+      // --- LOGIC LOAD RIWAYAT (RENTER) ---
+      async function loadRenterHistory(myName) {
           const container = document.getElementById("myOrderList");
-          container.innerHTML = "";
+          
+          try {
+              // Ambil order dimana renterName == SAYA
+              const snapshot = await db.collection('orders')
+                                       .where('renterName', '==', myName)
+                                       .get();
 
-          if (myOrders.length === 0) {
-            container.innerHTML =
-              '<div style="text-align:center; padding:30px; background:white; border-radius:10px; color:#888; border: 1px dashed #ccc;">Belum ada riwayat belanja.</div>';
-          } else {
-            myOrders.forEach((o) => {
-              let badgeClass = "bg-pending";
-              let statusText = "Menunggu";
-              if (o.status === "approved") {
-                badgeClass = "bg-approved";
-                statusText = "Disetujui";
-              }
-              if (o.status === "rejected") {
-                badgeClass = "bg-rejected";
-                statusText = "Ditolak";
-              }
-              if (o.status === "done") {
-                badgeClass = "bg-paid";
-                statusText = "Selesai";
+              if (snapshot.empty) {
+                  container.innerHTML = `
+                    <div style="text-align:center; padding:30px; background:white; border-radius:10px; border:1px dashed #ccc; color:#888;">
+                        <i class="fas fa-shopping-basket" style="font-size:24px; margin-bottom:10px;"></i><br>
+                        Belum ada riwayat belanja.<br>
+                        <a href="index.html" style="color:#4a69bd; font-weight:bold; text-decoration:none;">Mulai Sewa Barang</a>
+                    </div>
+                  `;
+                  return;
               }
 
-              container.innerHTML += `
-                            <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee;">
-                                <img src="${
-                                  o.productImg
-                                }" style="width:60px; height:60px; object-fit:cover; border-radius:10px; background:#eee;">
-                                <div style="flex:1;">
-                                    <h4 style="margin:0; font-size:16px;">${
-                                      o.productName
-                                    }</h4>
-                                    <p style="margin:5px 0; font-size:13px; color:#666;">
-                                        Total: <b style="color:#4a69bd;">${formatRupiah(
-                                          o.total
-                                        )}</b> (${o.days} Hari)
-                                    </p>
-                                    <small style="color:#888;">Order ID: ${
-                                      o.id
-                                    }</small>
-                                </div>
-                                <span class="badge ${badgeClass}">${statusText}</span>
-                            </div>
-                        `;
-            });
+              let orders = [];
+              snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+
+              // Sorting Client Side (Biar ga error index)
+              orders.sort((a, b) => b.createdAt - a.createdAt);
+
+              let html = "";
+              orders.forEach(o => {
+                  // Logic Badge Warna-Warni
+                  let badgeStyle = "background:#eee; color:#333;"; // Default
+                  let statusText = o.status.toUpperCase();
+
+                  if(o.status === 'pending') {
+                      badgeStyle = "background:#fff3cd; color:#856404;"; // Kuning
+                      statusText = "MENUNGGU KONFIRMASI";
+                  } else if (o.status === 'approved') {
+                      badgeStyle = "background:#d1e7dd; color:#0f5132;"; // Hijau
+                      statusText = "DISETUJUI ✅";
+                  } else if (o.status === 'rejected') {
+                      badgeStyle = "background:#f8d7da; color:#842029;"; // Merah
+                      statusText = "DITOLAK ❌";
+                  } else if (o.paymentStatus === 'paid' && o.status === 'pending') {
+                       // Kasus khusus: Udah bayar tapi belum di approve
+                       badgeStyle = "background:#cff4fc; color:#055160;"; // Biru Muda
+                       statusText = "SUDAH BAYAR (VERIFIKASI)";
+                  }
+
+                  // Format Tanggal
+                  const dateStr = o.startDate ? o.startDate.toDate().toLocaleDateString('id-ID') : '-';
+
+                  html += `
+                    <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee;">
+                        <img src="${o.productImg}" style="width:60px; height:60px; object-fit:cover; border-radius:10px; background:#eee;" onerror="this.src='https://via.placeholder.com/60'">
+                        
+                        <div style="flex:1;">
+                            <h4 style="margin:0; font-size:16px;">${o.productName}</h4>
+                            <p style="margin:5px 0; font-size:13px; color:#666;">
+                                Mulai: ${dateStr} (${o.days} Hari)<br>
+                                Total: <b style="color:#4a69bd;">${formatRupiah(o.totalPrice || o.total)}</b>
+                            </p>
+                            <small style="color:#aaa; font-size:10px;">ID: ${o.id}</small>
+                        </div>
+
+                        <span style="padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; ${badgeStyle}">
+                            ${statusText}
+                        </span>
+                    </div>
+                  `;
+              });
+
+              container.innerHTML = html;
+
+          } catch (error) {
+              console.error(error);
+              container.innerHTML = "<p>Gagal memuat data.</p>";
           }
-        }
+      }
+
+      // --- LOGIC STATISTIK PROVIDER (Optional, buat isi data di section provider) ---
+      async function loadProviderStats(myName) {
+          try {
+              // 1. Hitung Barang
+              const prodSnapshot = await db.collection('products').where('owner', '==', myName).get();
+              document.getElementById("totalItems").innerText = prodSnapshot.size + " Unit";
+
+              // 2. Hitung Pendapatan (Dari order yg approved)
+              const orderSnapshot = await db.collection('orders')
+                                            .where('owner', '==', myName)
+                                            .where('status', '==', 'approved')
+                                            .get();
+              
+              let totalRev = 0;
+              orderSnapshot.forEach(doc => {
+                  const d = doc.data();
+                  totalRev += (d.totalPrice || d.total || 0);
+              });
+
+              document.getElementById("totalTransactions").innerText = orderSnapshot.size + " Kali";
+              document.getElementById("totalRevenue").innerText = formatRupiah(totalRev);
+
+          } catch (e) {
+              console.log("Bukan provider aktif / error stats");
+          }
+      }
+
+      function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+      }
+
+      function logout() {
+          firebase.auth().signOut().then(() => {
+              sessionStorage.clear();
+              window.location.href = "login.html";
+          });
       }
     </script>
   </body>
