@@ -22,7 +22,6 @@
           <span class="logo-black">Sewa</span><span class="logo-blue">Mates</span>
         </span>
       </a>
-
       <div id="nav-menu" class="nav-links"></div>
     </nav>
 
@@ -37,6 +36,7 @@
           display: flex;
           align-items: center;
           gap: 20px;
+          flex-wrap: wrap;
         "
       >
         <img
@@ -52,13 +52,13 @@
           "
         />
 
-        <div style="flex: 1">
+        <div style="flex: 1; min-width: 200px;">
           <h2 id="profileName" style="margin: 0">Memuat...</h2>
           <p id="profileEmail" style="margin: 0; font-size: 14px; color: #888">
             ...
           </p>
-          <div
-            id="profileRoleBadge"
+          
+          <div id="profileRoleBadge"
             style="
               margin-top: 10px;
               display: inline-block;
@@ -80,75 +80,32 @@
       </div>
 
       <div id="section-provider" style="display: none">
-        <h3 style="margin-bottom: 15px; color: #4a69bd">
-          📊 Dashboard Keuangan Toko
-        </h3>
-        <div
-          style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-          "
-        >
-          <div
-            style="
-              background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-              color: white;
-              padding: 20px;
-              border-radius: 15px;
-            "
-          >
+        <h3 style="margin-bottom: 15px; color: #4a69bd">📊 Dashboard Keuangan Toko</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+          <div style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 20px; border-radius: 15px;">
             <p style="margin: 0; opacity: 0.8">Total Pendapatan</p>
-            <h2 id="totalRevenue" style="margin: 5px 0; font-size: 28px">
-              Rp 0
-            </h2>
+            <h2 id="totalRevenue" style="margin: 5px 0; font-size: 28px">Rp 0</h2>
           </div>
-          <div
-            style="
-              background: white;
-              padding: 20px;
-              border-radius: 15px;
-              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            "
-          >
+          <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);">
             <p style="margin: 0; color: #888">Barang Disewakan</p>
             <h2 id="totalItems" style="margin: 5px 0; color: #333">0</h2>
           </div>
-          <div
-            style="
-              background: white;
-              padding: 20px;
-              border-radius: 15px;
-              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            "
-          >
+          <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);">
             <p style="margin: 0; color: #888">Transaksi Sukses</p>
-            <h2 id="totalTransactions" style="margin: 5px 0; color: #2ecc71">
-              0
-            </h2>
+            <h2 id="totalTransactions" style="margin: 5px 0; color: #2ecc71">0</h2>
           </div>
         </div>
 
-        <div style="margin-top: 20px; text-align: center">
-          <a
-            href="provider.html"
-            class="btn-main"
-            style="
-              text-decoration: none;
-              display: inline-block;
-              width: auto;
-              padding: 10px 30px;
-            "
-          >
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="provider.html" class="btn-main" style="text-decoration: none; display: inline-block; width: auto; padding: 10px 30px;">
             Kelola Toko Saya
           </a>
         </div>
       </div>
 
       <div id="section-renter" style="display: block">
-        <h3 style="margin-bottom: 15px; color: #4a69bd">
-          📦 Riwayat Pesanan Saya
-        </h3>
+        <h3 style="margin-bottom: 15px; color: #4a69bd">📦 Riwayat Pesanan Saya</h3>
         <div id="myOrderList" style="margin-top: 15px">
           <p style="text-align:center; color:#888;">Memuat riwayat...</p>
         </div>
@@ -163,19 +120,21 @@
     <script src="js/auth.js"></script>
 
     <script>
-      // Init Data & Navbar
       initData();
-      const localUser = checkAuth(); // Render Navbar atas
+      const localUser = checkAuth(); 
       let currentUser = null;
+      
+      // 🔥 INI LOGIKA OTOMATISNYA 🔥
+      // Kita ambil catatan terakhir: user lagi jadi 'renter' atau 'provider'?
+      // Kalau belum ada catatan, defaultnya 'renter'
+      let currentAppMode = sessionStorage.getItem("appMode") || "renter";
 
-      // Tunggu Firebase Siap
       if (typeof firebase !== "undefined" && firebase.auth) {
           firebase.auth().onAuthStateChanged((user) => {
             if (user) {
               currentUser = user;
               renderProfilePage(user);
             } else if (localUser) {
-                // Support login localStorage
                 currentUser = { displayName: localUser.name, email: localUser.name };
                 renderProfilePage(currentUser);
             } else {
@@ -188,126 +147,94 @@
         const name = user.displayName || user.email;
         const email = user.email;
 
-        // 1. ISI HEADER PROFIL
+        // 1. ISI HEADER
         document.getElementById("profileName").innerText = name;
         document.getElementById("profileEmail").innerText = email;
-        
-        // Avatar Dummy Keren
         const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4a69bd&color=fff&size=128`;
         document.getElementById("profileImg").src = photoURL;
 
-        // 2. LOAD RIWAYAT PESANAN (RENTER MODE - DEFAULT)
-        loadRenterHistory(name);
+        // 2. SET TAMPILAN SESUAI MODE TERAKHIR (OTOMATIS)
+        const sectionProvider = document.getElementById("section-provider");
+        const sectionRenter = document.getElementById("section-renter");
+        const badge = document.getElementById("profileRoleBadge");
 
-        // 3. LOAD STATISTIK TOKO (PROVIDER MODE - BACKGROUND)
-        // Kita hitung aja iseng-iseng, siapa tau dia punya toko juga
-        loadProviderStats(name);
+        if(currentAppMode === "provider") {
+            // Tampilan Provider
+            sectionProvider.style.display = "block";
+            sectionRenter.style.display = "none";
+            badge.innerText = "Mode: Penyedia Toko";
+            badge.style.background = "#d1edfc"; 
+            badge.style.color = "#055160";
+            
+            // Load Data Toko
+            loadProviderStats(name);
+        } else {
+            // Tampilan Renter
+            sectionProvider.style.display = "none";
+            sectionRenter.style.display = "block";
+            badge.innerText = "Mode: Penyewa";
+            badge.style.background = "#e2e3e5"; 
+            badge.style.color = "#41464b";
+
+            // Load Riwayat
+            loadRenterHistory(name);
+        }
       }
 
       // --- LOGIC LOAD RIWAYAT (RENTER) ---
       async function loadRenterHistory(myName) {
           const container = document.getElementById("myOrderList");
-          
           try {
-              // Ambil order dimana renterName == SAYA
-              const snapshot = await db.collection('orders')
-                                       .where('renterName', '==', myName)
-                                       .get();
+              const snapshot = await db.collection('orders').where('renterName', '==', myName).get();
 
               if (snapshot.empty) {
-                  container.innerHTML = `
-                    <div style="text-align:center; padding:30px; background:white; border-radius:10px; border:1px dashed #ccc; color:#888;">
-                        <i class="fas fa-shopping-basket" style="font-size:24px; margin-bottom:10px;"></i><br>
-                        Belum ada riwayat belanja.<br>
-                        <a href="index.html" style="color:#4a69bd; font-weight:bold; text-decoration:none;">Mulai Sewa Barang</a>
-                    </div>
-                  `;
+                  container.innerHTML = `<p style="text-align:center; color:#888;">Belum ada riwayat belanja.</p>`;
                   return;
               }
 
               let orders = [];
               snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-
-              // Sorting Client Side (Biar ga error index)
               orders.sort((a, b) => b.createdAt - a.createdAt);
 
               let html = "";
               orders.forEach(o => {
-                  // Logic Badge Warna-Warni
-                  let badgeStyle = "background:#eee; color:#333;"; // Default
+                  let badgeStyle = "background:#eee; color:#333;";
                   let statusText = o.status.toUpperCase();
-
-                  if(o.status === 'pending') {
-                      badgeStyle = "background:#fff3cd; color:#856404;"; // Kuning
-                      statusText = "MENUNGGU KONFIRMASI";
-                  } else if (o.status === 'approved') {
-                      badgeStyle = "background:#d1e7dd; color:#0f5132;"; // Hijau
-                      statusText = "DISETUJUI ✅";
-                  } else if (o.status === 'rejected') {
-                      badgeStyle = "background:#f8d7da; color:#842029;"; // Merah
-                      statusText = "DITOLAK ❌";
-                  } else if (o.paymentStatus === 'paid' && o.status === 'pending') {
-                       // Kasus khusus: Udah bayar tapi belum di approve
-                       badgeStyle = "background:#cff4fc; color:#055160;"; // Biru Muda
-                       statusText = "SUDAH BAYAR (VERIFIKASI)";
-                  }
-
-                  // Format Tanggal
+                  if(o.status === 'pending') { badgeStyle = "background:#fff3cd; color:#856404;"; statusText = "MENUNGGU"; }
+                  else if (o.status === 'approved') { badgeStyle = "background:#d1e7dd; color:#0f5132;"; statusText = "DISETUJUI ✅"; }
+                  else if (o.status === 'rejected') { badgeStyle = "background:#f8d7da; color:#842029;"; statusText = "DITOLAK ❌"; }
+                  
                   const dateStr = o.startDate ? o.startDate.toDate().toLocaleDateString('id-ID') : '-';
 
                   html += `
                     <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee;">
                         <img src="${o.productImg}" style="width:60px; height:60px; object-fit:cover; border-radius:10px; background:#eee;" onerror="this.src='https://via.placeholder.com/60'">
-                        
                         <div style="flex:1;">
                             <h4 style="margin:0; font-size:16px;">${o.productName}</h4>
                             <p style="margin:5px 0; font-size:13px; color:#666;">
-                                Mulai: ${dateStr} (${o.days} Hari)<br>
-                                Total: <b style="color:#4a69bd;">${formatRupiah(o.totalPrice || o.total)}</b>
+                                ${dateStr} (${o.days} Hari) | <b style="color:#4a69bd;">${formatRupiah(o.totalPrice || o.total)}</b>
                             </p>
-                            <small style="color:#aaa; font-size:10px;">ID: ${o.id}</small>
                         </div>
-
-                        <span style="padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; ${badgeStyle}">
-                            ${statusText}
-                        </span>
-                    </div>
-                  `;
+                        <span style="padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; ${badgeStyle}">${statusText}</span>
+                    </div>`;
               });
-
               container.innerHTML = html;
-
-          } catch (error) {
-              console.error(error);
-              container.innerHTML = "<p>Gagal memuat data.</p>";
-          }
+          } catch (error) { console.error(error); }
       }
 
-      // --- LOGIC STATISTIK PROVIDER (Optional, buat isi data di section provider) ---
+      // --- LOGIC STATISTIK PROVIDER ---
       async function loadProviderStats(myName) {
           try {
-              // 1. Hitung Barang
               const prodSnapshot = await db.collection('products').where('owner', '==', myName).get();
               document.getElementById("totalItems").innerText = prodSnapshot.size + " Unit";
 
-              // 2. Hitung Pendapatan (Dari order yg approved)
-              const orderSnapshot = await db.collection('orders')
-                                            .where('owner', '==', myName)
-                                            .where('status', '==', 'approved')
-                                            .get();
-              
+              const orderSnapshot = await db.collection('orders').where('owner', '==', myName).where('status', '==', 'approved').get();
               let totalRev = 0;
-              orderSnapshot.forEach(doc => {
-                  const d = doc.data();
-                  totalRev += (d.totalPrice || d.total || 0);
-              });
+              orderSnapshot.forEach(doc => { totalRev += (doc.data().totalPrice || 0); });
 
               document.getElementById("totalTransactions").innerText = orderSnapshot.size + " Kali";
               document.getElementById("totalRevenue").innerText = formatRupiah(totalRev);
-
-          } catch (e) {
-              console.log("Bukan provider aktif / error stats");
-          }
+          } catch (e) { }
       }
 
       function formatRupiah(angka) {

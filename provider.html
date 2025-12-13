@@ -162,6 +162,7 @@
       let currentUser = null;
       let itemToDeleteId = null; 
 
+      sessionStorage.setItem("appMode", "provider");
       // Inisialisasi Auth & Data
       initData();
       const localUser = checkAuth();
