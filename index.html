@@ -99,36 +99,54 @@
     <script src="js/catalog.js"></script>
 
     <script>
+        // 1. Siapin variabel penampung data biar nge-searchnya Cepat & Hemat Kuota
+        let allProductsData = []; 
+
         // Inisialisasi
         initData(); 
-        checkAuth(); // Cek login & render navbar
+        checkAuth(); 
 
-        // 🔥 CARA BARU LOAD KATALOG (Pakai Loading)
+        // Load Katalog
         async function loadCatalog() {
             const grid = document.getElementById('catalogGrid');
             
-            // Kasih tulisan loading biar user gak bingung
-            if(grid) grid.innerHTML = '<p style="text-align:center; margin-top:50px;">Sedang memuat data dari Cloud...</p>';
+            // Tampilan Loading
+            if(grid) grid.innerHTML = '<p style="text-align:center; margin-top:50px; color:#888;">Sedang memuat data dari Cloud...</p>';
 
-            // Tunggu data dari Firebase
-            const products = await getProducts(); 
+            // Ambil data SEKALI saja, lalu simpan ke variabel 'allProductsData'
+            allProductsData = await getProducts(); 
             
-            // Setelah data datang, baru render
-            renderCatalog(products);
+            // Render data awal
+            renderCatalog(allProductsData);
         }
 
-        // Panggil fungsinya
+        // Panggil saat halaman dibuka
         loadCatalog();
 
-        // Fungsi Search (Update juga biar support Async)
-        async function handleSearch(keyword) {
-            const allProducts = await getProducts(); // Tunggu download data
-            const filtered = allProducts.filter(p => 
-                p.name.toLowerCase().includes(keyword.toLowerCase()) || 
-                p.category.toLowerCase().includes(keyword.toLowerCase())
+        // 2. LOGIKA SEARCH YANG BENAR (Sambungkan Input ke Kode)
+        const searchInput = document.getElementById('searchInput');
+
+        // Pakai 'input' event listener biar realtime (diketik langsung berubah)
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+
+            // Filter dari data LOKAL yang sudah didownload tadi (allProductsData)
+            const filtered = allProductsData.filter(p => 
+                p.name.toLowerCase().includes(keyword) || 
+                p.category.toLowerCase().includes(keyword)
             );
-            renderCatalog(filtered);
-        }
+
+            // Tampilkan hasil filter
+            if(filtered.length > 0) {
+                renderCatalog(filtered);
+            } else {
+                document.getElementById('catalogGrid').innerHTML = 
+                    `<div style="text-align:center; width:100%; padding:40px; color:#888;">
+                        <p>Barang "<b>${e.target.value}</b>" tidak ditemukan :(</p>
+                    </div>`;
+            }
+        });
+        
     </script>
   </body>
 </html>

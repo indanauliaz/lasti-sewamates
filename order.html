@@ -90,27 +90,27 @@
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0" />
 
           <h3 style="margin-bottom: 15px">Atur Jadwal Sewa</h3>
+          
           <div
             style="
-              display: flex;
+              display: grid; 
+              grid-template-columns: 1fr 1fr; /* Membagi 2 kolom sama rata */
               gap: 15px;
               margin-bottom: 15px;
-              flex-wrap: wrap;
             "
           >
-            <div style="flex: 1; min-width: 200px">
+            <div>
               <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 5px;">Mulai</label>
-              <input type="date" id="startDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+              <input type="date" id="startDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" />
             </div>
-            <div style="flex: 1; min-width: 200px">
+            <div>
               <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 5px;">Selesai</label>
-              <input type="date" id="endDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+              <input type="date" id="endDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;" />
             </div>
           </div>
-
           <div style="margin-bottom: 20px">
             <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 5px;">Metode Pengambilan</label>
-            <select id="pickupMethod" onchange="calc()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+            <select id="pickupMethod" onchange="calc()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; box-sizing: border-box;">
               <option value="meetup">🤝 Ambil Langsung (Gratis)</option>
               <option value="locker">🔐 Smart Locker ITB (+Rp 5.000)</option>
             </select>

@@ -151,6 +151,46 @@
       </div>
     </div>
 
+    <div id="statusModal" class="modal" style="display: none; align-items: center; justify-content: center;">
+      <div class="modal-content" style="text-align: center; padding: 40px; border-radius: 20px; width: 300px;">
+        <div id="statusIcon" style="font-size: 80px; margin-bottom: 20px; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            ✅
+        </div>
+        
+        <h2 id="statusTitle" style="margin: 0; font-size: 24px;">Berhasil!</h2>
+        <p id="statusDesc" style="color: #666; margin-top: 10px; font-size: 14px;">Status pesanan diperbarui.</p>
+      </div>
+    </div>
+
+    <style>
+        @keyframes popUp {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+
+    <div id="confirmModal" class="modal" style="display: none; align-items: center; justify-content: center; z-index: 9999;">
+      <div class="modal-content" style="text-align: center; max-width: 350px; padding: 30px; border-radius: 20px;">
+        <div style="background: #e3f2fd; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+          <i class="fas fa-question" style="font-size: 24px; color: #4a69bd;"></i>
+        </div>
+        
+        <h3 id="confirmTitle" style="margin: 0; color: #333;">Konfirmasi?</h3>
+        <p id="confirmDesc" style="color: #666; font-size: 14px; margin: 10px 0 25px;">
+            Apakah Anda yakin ingin memproses pesanan ini?
+        </p>
+
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button onclick="closeConfirmModal()" class="btn-main" style="background: #ecf0f1; color: #333; margin: 0; width: auto; padding: 10px 25px;">
+            Batal
+          </button>
+          <button onclick="executeProcess()" id="btnConfirmAction" class="btn-main" style="background: #4a69bd; margin: 0; width: auto; padding: 10px 25px;">
+            Ya, Lanjutkan
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -162,8 +202,9 @@
       let currentUser = null;
       let itemToDeleteId = null; 
 
+      // Set session biar profil tau kita lagi mode provider
       sessionStorage.setItem("appMode", "provider");
-      // Inisialisasi Auth & Data
+      
       initData();
       const localUser = checkAuth();
 
@@ -173,7 +214,6 @@
           if (user) {
             currentUser = user;
             const ownerName = user.displayName || user.email;
-            // Panggil Render saat login berhasil
             renderOrders(ownerName);
             renderInventory(ownerName);
           } else {
@@ -188,7 +228,6 @@
         });
       }
 
-      // --- FUNGSI TAB ---
       function switchTab(tabName) {
         document.querySelectorAll(".tab-content").forEach((el) => (el.style.display = "none"));
         document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
@@ -202,57 +241,34 @@
         }
       }
 
-      // --- [UPDATED] RENDER PESANAN MASUK (REALTIME DB) ---
-      // --- RENDER PESANAN MASUK (VERSI ANTI ERROR) ---
+      // --- RENDER PESANAN ---
       async function renderOrders(ownerName) {
         const container = document.getElementById("incomingOrderList");
         container.innerHTML = '<p style="text-align:center; color:#888;">Memuat pesanan...</p>';
 
         try {
-            // VERSI AMAN: Kita hapus .orderBy dulu biar tidak butuh Index
-            const snapshot = await db.collection('orders')
-                                     .where('owner', '==', ownerName)
-                                     // .orderBy('createdAt', 'desc') <--- INI BIANG KEROKNYA KITA UMPETIN DULU
-                                     .get();
+            const snapshot = await db.collection('orders').where('owner', '==', ownerName).get();
             
             if (snapshot.empty) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding: 40px; color:#999;">
-                        <i class="fas fa-clipboard-list" style="font-size:30px; margin-bottom:10px;"></i>
-                        <p>Belum ada pesanan masuk.</p>
-                    </div>`;
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color:#999;"><p>Belum ada pesanan masuk.</p></div>`;
                 return;
             }
 
-            let html = "";
-            
-            // Kita urutkan manual pakai Javascript aja (Client side sorting)
-            // Biar Firebase gak rewel minta index
             let orders = [];
-            snapshot.forEach(doc => {
-                orders.push({ id: doc.id, ...doc.data() });
-            });
+            snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+            orders.sort((a, b) => b.createdAt - a.createdAt);
 
-            // Urutkan dari yang terbaru (berdasarkan waktu dibuat)
-            orders.sort((a, b) => {
-                 let dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
-                 let dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
-                 return dateB - dateA; 
-            });
-
-            // Render HTML
+            let html = "";
             orders.forEach((o) => {
-                const orderId = o.id;
-                
                 const startObj = o.startDate ? o.startDate.toDate() : new Date();
                 const endObj = o.endDate ? o.endDate.toDate() : new Date();
-                const dateStr = `${startObj.getDate()}/${startObj.getMonth()+1} - ${endObj.getDate()}/${endObj.getMonth()+1}/${endObj.getFullYear()}`;
+                const dateStr = `${startObj.getDate()}/${startObj.getMonth()+1} - ${endObj.getDate()}/${endObj.getMonth()+1}`;
 
                 let actionBtns = "";
                 if (o.status === "pending") {
                     actionBtns = `
-                        <button onclick="processOrder('${orderId}', 'approved')" class="btn-main" style="width:auto; background:#2ecc71; padding:5px 15px; font-size:12px;">Terima</button>
-                        <button onclick="processOrder('${orderId}', 'rejected')" class="btn-main" style="width:auto; background:#e74c3c; padding:5px 15px; font-size:12px;">Tolak</button>
+                        <button onclick="processOrder('${o.id}', 'approved')" class="btn-main" style="width:auto; background:#2ecc71; padding:5px 15px; font-size:12px;">Terima</button>
+                        <button onclick="processOrder('${o.id}', 'rejected')" class="btn-main" style="width:auto; background:#e74c3c; padding:5px 15px; font-size:12px;">Tolak</button>
                     `;
                 } else {
                     let color = o.status === 'approved' ? '#2ecc71' : '#e74c3c';
@@ -260,52 +276,125 @@
                 }
 
                 html += `
-                    <div style="border:1px solid #eee; padding:15px; border-radius:10px; margin-bottom:10px; background:#fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="border:1px solid #eee; padding:15px; border-radius:10px; margin-bottom:10px; background:#fff;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <b style="font-size:16px; color:#333;">${o.productName}</b><br>
-                                <small style="color:#555;">Penyewa: <b>${o.renterName || 'User'}</b></small><br>
-                                <small style="color:#777;">
-                                    📅 ${dateStr} <b style="color:#e67e22;">(${o.days} Hari)</b>
-                                </small>
+                                <b style="font-size:16px;">${o.productName}</b><br>
+                                <small>Penyewa: <b>${o.renterName || 'User'}</b></small><br>
+                                <small>📅 ${dateStr} (${o.days} Hari)</small>
                             </div>
                             <div style="text-align:right;">
-                                <div style="font-weight:bold; color:#4a69bd; font-size:16px;">${formatRupiah(o.totalPrice || o.total || 0)}</div>
+                                <div style="font-weight:bold; color:#4a69bd;">${formatRupiah(o.totalPrice || o.total)}</div>
                                 <div style="margin-top:8px;">${actionBtns}</div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-
             container.innerHTML = html;
-
-        } catch (error) {
-            console.error("Error ambil pesanan:", error);
-            container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat: ${error.message}</p>`;
-        }
+        } catch (error) { container.innerHTML = "Gagal memuat pesanan."; }
       }
 
-      // --- [UPDATED] PROSES TERIMA/TOLAK PESANAN ---
-      async function processOrder(orderId, newStatus) {
-        if(!confirm(`Yakin ingin mengubah status menjadi ${newStatus}?`)) return;
-        
+      // --- VARIABEL SEMENTARA BUAT NYIMPEN DATA PAS KLIK TOMBOL ---
+      let tempOrderId = null;
+      let tempNewStatus = null;
+
+      // 1. FUNGSI DIPANGGIL PAS KLIK TOMBOL TERIMA/TOLAK
+      // (Cuma buat buka modal nanya doang)
+      function processOrder(orderId, newStatus) {
+        tempOrderId = orderId;
+        tempNewStatus = newStatus;
+
+        const title = document.getElementById('confirmTitle');
+        const desc = document.getElementById('confirmDesc');
+        const btn = document.getElementById('btnConfirmAction');
+
+        // Ubah teks modal sesuai aksi
+        if (newStatus === 'approved') {
+            title.innerText = "Terima Pesanan?";
+            desc.innerText = "Pesanan akan masuk ke daftar aktif.";
+            btn.innerText = "Ya, Terima";
+            btn.style.background = "#2ecc71"; // Hijau
+        } else {
+            title.innerText = "Tolak Pesanan?";
+            desc.innerText = "Pesanan akan dibatalkan permanen.";
+            btn.innerText = "Ya, Tolak";
+            btn.style.background = "#e74c3c"; // Merah
+        }
+
+        // Buka Modal Konfirmasi
+        document.getElementById('confirmModal').style.display = 'flex';
+      }
+
+      function closeConfirmModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+        tempOrderId = null;
+        tempNewStatus = null;
+      }
+
+      // 2. FUNGSI EKSEKUSI (DIPANGGIL PAS KLIK "YA" DI MODAL)
+      async function executeProcess() {
+        if (!tempOrderId || !tempNewStatus) return;
+
+        // 1. Simpan ID ke variabel lokal biar aman
+        const currentId = tempOrderId;
+        const currentStatus = tempNewStatus;
+
+        // 2. Tutup tampilan modalnya saja (JANGAN panggil closeConfirmModal dulu)
+        document.getElementById('confirmModal').style.display = 'none';
+
         try {
-            // Update status di Firebase
-            await db.collection('orders').doc(orderId).update({
-                status: newStatus
+            // 3. Update ke Firebase pakai ID yang sudah diamankan
+            await db.collection('orders').doc(currentId).update({
+                status: currentStatus
             });
-            
-            // Refresh tampilan otomatis
-            const ownerName = currentUser.displayName || currentUser.email;
-            await renderOrders(ownerName);
+
+            // --- DISINI MULAI ANIMASI SUKSES ---
+            const modal = document.getElementById('statusModal');
+            const icon = document.getElementById('statusIcon');
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
+
+            // Reset Animasi
+            icon.style.animation = 'none';
+            icon.offsetHeight; 
+            icon.style.animation = 'popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            if(currentStatus === 'approved') {
+                icon.innerHTML = '✅';
+                title.innerText = 'Pesanan Diterima!';
+                title.style.color = '#2ecc71';
+                desc.innerText = 'Penyewa akan segera diberitahu.';
+            } else {
+                icon.innerHTML = '❌';
+                title.innerText = 'Pesanan Ditolak';
+                title.style.color = '#e74c3c';
+                desc.innerText = 'Pesanan telah dibatalkan.';
+            }
+
+            modal.style.display = 'flex';
+
+            // Tutup otomatis & Refresh data
+            setTimeout(async () => {
+                modal.style.display = 'none';
+                // Reset variabel global di sini setelah semua selesai
+                tempOrderId = null;
+                tempNewStatus = null;
+                
+                if(currentUser) {
+                    const ownerName = currentUser.displayName || currentUser.email;
+                    await renderOrders(ownerName); 
+                }
+            }, 2000);
 
         } catch (error) {
-            alert("Gagal update status: " + error.message);
+            alert("Gagal: " + error.message);
+            // Kalau gagal, jangan lupa reset juga
+            tempOrderId = null;
+            tempNewStatus = null;
         }
       }
 
-      // --- RENDER INVENTORY (SAMA SEPERTI SEBELUMNYA) ---
+      // --- [UPDATED] RENDER INVENTORY (ADA EDIT) ---
       async function renderInventory(ownerName) {
         const container = document.getElementById('inventoryContainer'); 
         container.innerHTML = '<p style="text-align:center; padding:20px;">Mengambil data barang...</p>';
@@ -314,51 +403,41 @@
         try {
             const snapshot = await db.collection('products').get();
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (e) {
-            console.log("Error fetch products", e);
-        }
+        } catch (e) { console.log(e); }
         
         const myProducts = allProducts.filter(p => p.owner === ownerName);
         
         if(myProducts.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 60px 20px; color: #888;">
-                    <div style="background: #f0f2f5; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                        <i class="fas fa-box-open" style="font-size: 32px; color: #ccc;"></i>
-                    </div>
-                    <h3 style="margin: 0; color: #333;">Belum ada barang</h3>
-                    <p style="margin: 10px 0 25px;">Mulai sewakan barangmu dan dapatkan penghasilan tambahan.</p>
-                    <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 12px 30px; margin: 0 auto; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-plus"></i> Tambah Barang Pertama
-                    </button>
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align: center; padding: 40px; color: #888;">Belum ada barang.</div>`;
             return;
         }
 
         let html = `
             <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
-                <div style="margin-right: auto; align-self: center; font-weight: bold; color: #555;">
-                    Total: ${myProducts.length} Barang
-                </div>
-                <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 10px 20px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-plus"></i> Tambah Barang
-                </button>
+                <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 10px 20px;"><i class="fas fa-plus"></i> Tambah Barang</button>
             </div>
             <div class="catalog-grid">
         `;
 
         myProducts.forEach(p => {
+            // Encode data untuk dikirim ke fungsi Edit
+            const productData = encodeURIComponent(JSON.stringify(p));
+
             html += `
-                <div class="product-card" style="position:relative;">
+                <div class="product-card">
                     <div class="product-img"><img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150'"></div>
                     <div class="product-info">
                         <div style="font-weight:bold;">${p.name}</div>
                         <div style="color:#4a69bd; font-size:14px;">${formatRupiah(p.price)}/hari</div>
                         
-                        <button onclick="openDeleteModal('${p.id}')" style="margin-top:10px; background:#ff6b6b; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; width:100%; font-size:12px;">
-                            <i class="fas fa-trash"></i> Hapus
-                        </button>
+                        <div style="display:flex; gap:5px; margin-top:10px;">
+                            <button onclick="openEditModal('${productData}')" style="flex:1; background:#f39c12; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px;">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button onclick="openDeleteModal('${p.id}')" style="flex:1; background:#ff6b6b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px;">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -368,25 +447,41 @@
         container.innerHTML = html;
       }
 
-      // --- MODAL & DATA HELPER ---
+      // --- [UPDATED] FUNGSI EDIT & TAMBAH ---
       function openAddModal() {
-        document.getElementById("editId").value = "";
+        document.getElementById("editId").value = ""; 
         document.getElementById("pName").value = "";
         document.getElementById("pCategory").value = "";
         document.getElementById("pPrice").value = "";
         document.getElementById("pImg").value = "";
         document.getElementById("pDesc").value = "";
+        
         document.getElementById("modalTitle").innerText = "Tambah Barang Baru";
         document.getElementById("btnSave").innerText = "Simpan Barang";
         document.getElementById("addModal").style.display = "flex";
       }
 
+      function openEditModal(encodedData) {
+        const p = JSON.parse(decodeURIComponent(encodedData)); 
+
+        document.getElementById("editId").value = p.id; 
+        document.getElementById("pName").value = p.name;
+        document.getElementById("pCategory").value = p.category;
+        document.getElementById("pPrice").value = p.price;
+        document.getElementById("pImg").value = p.img;
+        document.getElementById("pDesc").value = p.desc;
+
+        document.getElementById("modalTitle").innerText = "Edit Barang";
+        document.getElementById("btnSave").innerText = "Update Perubahan";
+        document.getElementById("addModal").style.display = "flex";
+      }
+
       function closeAddModal() { document.getElementById("addModal").style.display = "none"; }
       
-      // Save Product
       async function saveProduct() {
         if(!currentUser) { alert("Sesi habis"); return; }
 
+        const id = document.getElementById("editId").value;
         const name = document.getElementById('pName').value;
         const price = parseInt(document.getElementById('pPrice').value);
         const category = document.getElementById('pCategory').value;
@@ -398,43 +493,126 @@
             btn.innerText = "Menyimpan...";
             btn.disabled = true;
 
+            const productData = {
+                name: name, category: category, price: price,
+                owner: currentUser.displayName || currentUser.email,
+                img: imgUrl || 'https://via.placeholder.com/150', 
+                desc: desc
+            };
+
             try {
-                await db.collection('products').add({
-                    name: name, category: category, price: price,
-                    owner: currentUser.displayName || currentUser.email,
-                    img: imgUrl || 'https://via.placeholder.com/150', 
-                    desc: desc,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // Variabel untuk teks pop-up
+                let popupTitle = "";
+                let popupDesc = "";
+
+                if(id) {
+                    // --- LOGIKA EDIT ---
+                    await db.collection('products').doc(id).update(productData);
+                    popupTitle = "Berhasil Diubah!";
+                    popupDesc = "Data barang telah diperbarui.";
+                } else {
+                    // --- LOGIKA TAMBAH BARU ---
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('products').add(productData);
+                    popupTitle = "Barang Ditambahkan!";
+                    popupDesc = "Barang baru siap disewakan.";
+                }
+                
+                // 1. Tutup Form Modal Dulu
                 closeAddModal();
-                await renderInventory(currentUser.displayName || currentUser.email);
-            } catch (error) { alert("Gagal: " + error.message); } 
-            finally { btn.innerText = "Simpan Barang"; btn.disabled = false; }
-        } else { alert("Nama & Harga wajib diisi!"); }
+
+                // 2. Tampilkan Pop-up Sukses (Centang)
+                const modal = document.getElementById('statusModal');
+                const icon = document.getElementById('statusIcon');
+                const title = document.getElementById('statusTitle');
+                const descText = document.getElementById('statusDesc');
+
+                // Reset animasi biar gerak lagi
+                icon.style.animation = 'none';
+                icon.offsetHeight; 
+                icon.style.animation = 'popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+                // Set Icon & Teks
+                icon.innerHTML = '✅';
+                title.innerText = popupTitle;
+                title.style.color = '#2ecc71'; // Warna Hijau
+                descText.innerText = popupDesc;
+
+                modal.style.display = 'flex';
+
+                // 3. Refresh data di background & Tutup pop-up otomatis
+                setTimeout(async () => {
+                    modal.style.display = 'none';
+                    await renderInventory(currentUser.displayName || currentUser.email);
+                }, 2000); // Muncul selama 2 detik
+
+            } catch (error) { 
+                alert("Gagal: " + error.message); 
+            } 
+            finally { 
+                btn.innerText = "Simpan"; 
+                btn.disabled = false; 
+            }
+
+        } else { 
+            alert("Nama & Harga wajib diisi!"); 
+        }
       }
 
-      // Delete Product
+      // --- HAPUS BARANG ---
       function openDeleteModal(id) { itemToDeleteId = id; document.getElementById("deleteModal").style.display = "flex"; }
       function closeDeleteModal() { document.getElementById("deleteModal").style.display = "none"; itemToDeleteId = null; }
 
       async function confirmDelete() {
         if (!itemToDeleteId) return;
+        
         const btn = document.getElementById('btnConfirmDelete');
-        const textAsli = btn.innerText;
         btn.innerText = "Menghapus...";
-        btn.disabled = true;
-
+        
         try {
+            // 1. Hapus dari Firestore
             await db.collection('products').doc(itemToDeleteId).delete();
+            
+            // 2. Tutup Modal Konfirmasi Hapus (yang ada tombol Ya/Tidak)
             closeDeleteModal();
-            await renderInventory(currentUser.displayName || currentUser.email);
-        } catch (error) { alert("Gagal hapus"); }
-        finally { btn.innerText = textAsli; btn.disabled = false; }
-      }
+            
+            // 3. Tampilkan Pop-up Sukses Animasi
+            const modal = document.getElementById('statusModal');
+            const icon = document.getElementById('statusIcon');
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
 
+            // Reset Animasi
+            icon.style.animation = 'none';
+            icon.offsetHeight; 
+            icon.style.animation = 'popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            // Set Konten
+            icon.innerHTML = '✅'; 
+            title.innerText = "Barang Dihapus";
+            title.style.color = '#e74c3c'; // Warna Merah (Sesuai tema delete)
+            desc.innerText = "Barang telah dihapus dari daftar.";
+
+            modal.style.display = 'flex';
+
+            // 4. Refresh Data & Tutup Otomatis
+            setTimeout(async () => {
+                modal.style.display = 'none';
+                await renderInventory(currentUser.displayName || currentUser.email);
+            }, 2000);
+
+        } catch (error) { 
+            alert("Gagal hapus: " + error.message); 
+        } 
+        finally { 
+            btn.innerText = "Ya, Hapus"; 
+        }
+      }
+      
       function formatRupiah(angka) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
       }
+
     </script>
   </body>
 </html>

@@ -201,21 +201,31 @@
                   let badgeStyle = "background:#eee; color:#333;";
                   let statusText = o.status.toUpperCase();
                   if(o.status === 'pending') { badgeStyle = "background:#fff3cd; color:#856404;"; statusText = "MENUNGGU"; }
-                  else if (o.status === 'approved') { badgeStyle = "background:#d1e7dd; color:#0f5132;"; statusText = "DISETUJUI ✅"; }
-                  else if (o.status === 'rejected') { badgeStyle = "background:#f8d7da; color:#842029;"; statusText = "DITOLAK ❌"; }
+                  else if (o.status === 'approved') { badgeStyle = "background:#d1e7dd; color:#0f5132;"; statusText = "DISETUJUI"; }
+                  else if (o.status === 'rejected') { badgeStyle = "background:#f8d7da; color:#842029;"; statusText = "DITOLAK"; }
                   
                   const dateStr = o.startDate ? o.startDate.toDate().toLocaleDateString('id-ID') : '-';
-
                   html += `
                     <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee;">
+                        
                         <img src="${o.productImg}" style="width:60px; height:60px; object-fit:cover; border-radius:10px; background:#eee;" onerror="this.src='https://via.placeholder.com/60'">
+                        
                         <div style="flex:1;">
                             <h4 style="margin:0; font-size:16px;">${o.productName}</h4>
                             <p style="margin:5px 0; font-size:13px; color:#666;">
                                 ${dateStr} (${o.days} Hari) | <b style="color:#4a69bd;">${formatRupiah(o.totalPrice || o.total)}</b>
                             </p>
                         </div>
-                        <span style="padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; ${badgeStyle}">${statusText}</span>
+
+                        <span style="
+                            padding: 8px 15px; 
+                            border-radius: 20px; 
+                            font-size: 12px; 
+                            font-weight: bold; 
+                            margin-right: 10px; 
+                            ${badgeStyle}">
+                            ${statusText}
+                        </span>
                     </div>`;
               });
               container.innerHTML = html;
