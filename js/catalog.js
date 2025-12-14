@@ -1,9 +1,6 @@
-/* --- File: js/catalog.js (FINAL FIX) --- */
-
-// Variabel untuk menyimpan produk yang sedang dilihat di modal
 let currentProduct = null;
 
-// RENDER KATALOG
+// Render Katalog
 function renderCatalog(products) {
     const grid = document.getElementById('catalogGrid');
     if (!grid) return;
@@ -18,7 +15,7 @@ function renderCatalog(products) {
     products.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.onclick = () => openModal(p); // Pass object produknya
+        card.onclick = () => openModal(p);
         
         card.innerHTML = `
             <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
@@ -32,14 +29,12 @@ function renderCatalog(products) {
     });
 }
 
-// --- MODAL LOGIC (Pop Up) ---
 function openModal(product) {
-    currentProduct = product; // Simpan produk di variabel global
+    currentProduct = product;
     const user = firebase.auth().currentUser;
     let currentDisplayName = null;
 
     if (user && user.email.endsWith('@mahasiswa.itb.ac.id')) {
-        // 2. Hitung Display Name (Logika yang sama dengan di Navbar)
         currentDisplayName = (user.displayName || user.email.split('@')[0]).trim();
     }
     
@@ -51,19 +46,16 @@ function openModal(product) {
     document.getElementById('modalPrice').innerText = formatRupiah(product.price) + ' / hari';
     document.getElementById('modalImg').src = product.img;
     
-    // >> LOGIKA PENCEGAHAN SEWA BARANG SENDIRI <<
+    // Gaboleh Sewa Barang Sendiri
     if (rentButton) {
-        // >> LOGIKA PENCEGAHAN SEWA BARANG SENDIRI <<
         if (currentDisplayName && product.owner.toLowerCase().trim() === currentDisplayName.toLowerCase()) {
             rentButton.disabled = true;
             rentButton.innerText = 'Ini Barang Milik Anda!';
-            rentButton.style.backgroundColor = '#ffc048'; // Warna kuning/oranye
+            rentButton.style.backgroundColor = '#ffc048';
             rentButton.style.cursor = 'not-allowed';
         } else {
-            // Bukan barang milik sendiri
             rentButton.disabled = false;
             rentButton.innerText = 'Sewa Sekarang';
-            // Reset style ke default
             rentButton.style.backgroundColor = ''; 
             rentButton.style.cursor = 'pointer';
         }
@@ -76,7 +68,6 @@ function closeModal() {
     document.getElementById('productModal').style.display = 'none';
 }
 
-// Tutup modal kalau klik di luar kotak putih
 window.onclick = function(event) {
     const modal = document.getElementById('productModal');
     if (event.target == modal) {
@@ -84,9 +75,8 @@ window.onclick = function(event) {
     }
 }
 
-// --- LOGIKA TOMBOL SEWA (FIXED: Pake Firebase Check) ---
+// Sewa
 function checkLoginAndRent() {
-    // 💡 CEK STATUS LOGIN VIA FIREBASE
     const user = firebase.auth().currentUser; 
     let currentDisplayName = null;
     
@@ -94,21 +84,17 @@ function checkLoginAndRent() {
         currentDisplayName = (user.displayName || user.email.split('@')[0]).trim();
     }
 
-    // Lapisan Proteksi Kedua (case-insensitive)
     if (currentDisplayName && currentProduct && currentProduct.owner.toLowerCase().trim() === currentDisplayName.toLowerCase()) {
-        // KASUS PENCEGAHAN: Barang milik sendiri
         alert("Maaf, Anda tidak dapat menyewa barang milik Anda sendiri.");
         closeModal();
         return; 
     }
 
     if (user) {
-        // SKENARIO A: SUDAH LOGIN
-        // Langsung ke halaman Order bawa ID barang
+        // Udah Login
         window.location.href = `order.html?id=${currentProduct.id}`;
     } else {
-        // SKENARIO B: BELUM LOGIN
-        // Simpan ID barang yang mau disewa
+        // Belum Login
         sessionStorage.setItem('pendingOrderId', currentProduct.id);
         window.location.href = 'login.html'; 
     }
@@ -126,6 +112,5 @@ function handleSearch(keyword) {
 
 // Helper Format Rupiah 
 function formatRupiah(angka) {
-    // Memastikan format Rupiah berjalan lancar
     return 'Rp ' + (angka || 0).toLocaleString('id-ID');
 }

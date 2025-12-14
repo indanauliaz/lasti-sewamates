@@ -100,7 +100,6 @@
     <script src="js/catalog.js"></script>
 
     <script>
-        // 1. Siapin variabel penampung data biar nge-searchnya Cepat & Hemat Kuota
         let allProductsData = []; 
 
         // Inisialisasi
@@ -114,30 +113,26 @@
             // Tampilan Loading
             if(grid) grid.innerHTML = '<p style="text-align:center; margin-top:50px; color:#888;">Sedang memuat data dari Cloud...</p>';
 
-            // Ambil data SEKALI saja, lalu simpan ke variabel 'allProductsData'
+            // Ambil Data
             allProductsData = await getProducts(); 
             
-            // Render data awal
+            // Render Data Awal
             renderCatalog(allProductsData);
         }
 
         // Panggil saat halaman dibuka
         loadCatalog();
 
-        // 2. LOGIKA SEARCH YANG BENAR (Sambungkan Input ke Kode)
+        // Search
         const searchInput = document.getElementById('searchInput');
-
-        // Pakai 'input' event listener biar realtime (diketik langsung berubah)
         searchInput.addEventListener('input', (e) => {
             const keyword = e.target.value.toLowerCase();
 
-            // Filter dari data LOKAL yang sudah didownload tadi (allProductsData)
             const filtered = allProductsData.filter(p => 
                 p.name.toLowerCase().includes(keyword) || 
                 p.category.toLowerCase().includes(keyword)
             );
 
-            // Tampilkan hasil filter
             if(filtered.length > 0) {
                 renderCatalog(filtered);
             } else {

@@ -1,7 +1,6 @@
 initData();
 const user = checkAuth();
 
-// Pastikan yang akses adalah provider
 if (!user || user.role !== 'provider') {
     window.location.href = 'index.html';
 }
@@ -14,7 +13,7 @@ function switchTab(tabName) {
     event.target.classList.add('active');
 }
 
-// Render List Barang Milik Provider Ini
+// Render List Barang
 function renderMyInventory() {
     const allProducts = getProducts();
     const myProducts = allProducts.filter(p => p.owner === user.name);
@@ -43,17 +42,16 @@ function addProduct() {
             name: name,
             category: cat,
             price: price,
-            owner: user.name, // Otomatis pakai nama user yang login
+            owner: user.name,
             img: img,
             desc: desc
         };
         
         products.push(newProduct);
-        localStorage.setItem('products', JSON.stringify(products)); // Simpan ke "Database"
+        localStorage.setItem('products', JSON.stringify(products));
         
         alert('Barang berhasil ditambahkan!');
         renderMyInventory();
-        // Reset form...
     } else {
         alert('Lengkapi nama dan harga!');
     }

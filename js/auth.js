@@ -1,6 +1,4 @@
-/* --- File: js/auth.js --- */
-
-// 1. CONFIG FIREBASE
+// Config Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyBxwQcXWS19rC6c3CisS3yH36-q9rYZYIg",
     authDomain: "sso-login-sewamates.firebaseapp.com",
@@ -10,7 +8,7 @@ const firebaseConfig = {
     appId: "1:225488273196:web:2888e738dc26e3afeaf689"
 };
 
-// Initialize Firebase (Cek biar gak double init)
+// Initialize Firebase
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 } else if (typeof firebase === 'undefined') {
@@ -22,28 +20,25 @@ const db = firebase.firestore();
 const provider = new firebase.auth.OAuthProvider('microsoft.com');
 provider.setCustomParameters({ prompt: 'select_account' });
 
-// --- 2. FUNGSI LOGIN (Pake Microsoft) ---
+// Login Microsoft
 function loginMicrosoft() {
     const btnLogin = document.getElementById('btnLogin');
     const errorMsg = document.getElementById('errorMsg');
     
-    // Ubah tombol jadi loading
     if(btnLogin) btnLogin.innerHTML = "Memproses...";
 
     auth.signInWithPopup(provider)
         .then((result) => {
             const user = result.user;
             
-            // VALIDASI: Cuma boleh anak ITB
+            // Validasi ITB
             if (user.email.endsWith('@mahasiswa.itb.ac.id')) {
                 console.log("Login Sukses:", user.email);
 
-                // Set default mode kalau baru pertama kali login
                 if (!sessionStorage.getItem('appMode')) {
                     sessionStorage.setItem('appMode', 'renter');
                 }
 
-                // Cek apakah user sebelumnya mau sewa barang? (Redirect logic)
                 const pendingItem = sessionStorage.getItem('pendingOrderId');
                 if (pendingItem) {
                     sessionStorage.removeItem('pendingOrderId');
@@ -53,7 +48,6 @@ function loginMicrosoft() {
                 }
 
             } else {
-                // Tendang user ilegal
                 user.delete();
                 if(errorMsg) {
                     errorMsg.style.display = 'block';
@@ -71,8 +65,7 @@ function loginMicrosoft() {
             if(btnLogin) btnLogin.innerHTML = "Masuk dengan Microsoft";
         });
 }
-
-// --- 3. FUNGSI LOGOUT ---
+// Logout
 function handleLogout() {
     auth.signOut().then(() => {
         sessionStorage.removeItem('appMode');
@@ -80,30 +73,27 @@ function handleLogout() {
     });
 }
 
-// --- 4. APP MODE ---
+// App Mode
 function setAppMode(mode) {
     sessionStorage.setItem('appMode', mode);
-    // window.location.reload();  <-- HAPUS BARIS INI (Gak perlu)
 }
 
-// --- 5. CHECK AUTH (Listener Firebase) ---
+// Cek Auth
 function checkAuth() {
     auth.onAuthStateChanged((user) => {
         const navContainer = document.getElementById('nav-menu');
         
         if (user) {
-            // -- USER LOGGED IN --
-            // Security check
+            // Logged In
             if (!user.email.endsWith('@mahasiswa.itb.ac.id')) {
                 auth.signOut();
                 return;
             }
             renderNavbar(user, true); 
         } else {
-            // -- USER NOT LOGGED IN --
+            // Not Logged In
             renderNavbar(null, false);
             
-            // Proteksi: Kalau user coba buka halaman provider/profile tanpa login, tendang ke login
             const path = window.location.pathname;
             if (path.includes('provider.html') || path.includes('profile.html')) {
                 window.location.href = 'login.html';
@@ -112,19 +102,17 @@ function checkAuth() {
     });
 }
 
-// --- 6. RENDER NAVBAR (Versi FIX: Logout Tulisan Merah) ---
+// Render Navbar
 function renderNavbar(user, isLoggedIn) {
     const navContainer = document.getElementById('nav-menu');
     if (!navContainer) return;
 
     if (isLoggedIn && user) {
-        // Cek mode dari penyimpanan browser
         const currentMode = sessionStorage.getItem('appMode') || 'renter';
         
         const isProviderPage = currentMode === 'provider';
         const isRenterPage = currentMode === 'renter'; 
 
-        // Style aktif/tidak aktif
         const activeStyle = 'color: var(--primary-color); font-weight: 700; border-bottom: 2px solid var(--primary-color);';
         const inactiveStyle = 'color: #555; font-weight: 500;';
 
@@ -133,7 +121,6 @@ function renderNavbar(user, isLoggedIn) {
             ? user.photoURL 
             : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff`;
 
-        // Render Navbar Lengkap
         navContainer.innerHTML = `
             <div style="display: flex; gap: 20px; margin-right: auto; margin-left: 30px;">
                 <a href="index.html" onclick="setAppMode('renter')" style="text-decoration:none; ${isRenterPage ? activeStyle : inactiveStyle}">
@@ -165,7 +152,7 @@ function renderNavbar(user, isLoggedIn) {
             </div>
         `;
     } else {
-        // TAMPILAN TAMU
+        // Guest
         navContainer.innerHTML = `
             <div style="margin-left: auto;">
                 <a href="login.html" class="btn-main" style="text-decoration:none; padding: 10px 25px; color: white; border-radius: 20px;">
@@ -176,13 +163,10 @@ function renderNavbar(user, isLoggedIn) {
     }
 }
 
-/* --- File: js/auth.js --- (Tambahkan di bagian bawah) */
-
-// --- 7. HELPER: AMBIL ID PENGGUNA (SAMA DENGAN OWNER NAME) ---
+// Ambil User Name
 function getCurrentUserName() {
     const user = firebase.auth().currentUser;
     if (user && user.email.endsWith('@mahasiswa.itb.ac.id')) {
-        // Ambil bagian sebelum @.
         return user.email.split('@')[0];
     }
     return null; 

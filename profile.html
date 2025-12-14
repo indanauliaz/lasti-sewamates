@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profil Saya</title>
+    <title>SewaMates - Profil Saya</title>
     <link rel="icon" href="img/sewamates-icon.png" type="image/png">
     <link rel="stylesheet" href="css/style.css" />
     <link
@@ -125,9 +125,6 @@
       const localUser = checkAuth(); 
       let currentUser = null;
       
-      // 🔥 INI LOGIKA OTOMATISNYA 🔥
-      // Kita ambil catatan terakhir: user lagi jadi 'renter' atau 'provider'?
-      // Kalau belum ada catatan, defaultnya 'renter'
       let currentAppMode = sessionStorage.getItem("appMode") || "renter";
 
       if (typeof firebase !== "undefined" && firebase.auth) {
@@ -148,13 +145,12 @@
         const name = user.displayName || user.email;
         const email = user.email;
 
-        // 1. ISI HEADER
         document.getElementById("profileName").innerText = name;
         document.getElementById("profileEmail").innerText = email;
         const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4a69bd&color=fff&size=128`;
         document.getElementById("profileImg").src = photoURL;
 
-        // 2. SET TAMPILAN SESUAI MODE TERAKHIR (OTOMATIS)
+        // Tampilan Sesuai Role
         const sectionProvider = document.getElementById("section-provider");
         const sectionRenter = document.getElementById("section-renter");
         const badge = document.getElementById("profileRoleBadge");
@@ -182,7 +178,7 @@
         }
       }
 
-      // --- LOGIC LOAD RIWAYAT (RENTER) ---
+      // Renter
       async function loadRenterHistory(myName) {
           const container = document.getElementById("myOrderList");
           try {
@@ -233,7 +229,7 @@
           } catch (error) { console.error(error); }
       }
 
-      // --- LOGIC STATISTIK PROVIDER ---
+      // Provider
       async function loadProviderStats(myName) {
           try {
               const prodSnapshot = await db.collection('products').where('owner', '==', myName).get();

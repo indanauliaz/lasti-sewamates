@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Toko - SewaMates</title>
+    <title>SewaMates - Dashboard Toko</title>
     <link rel="icon" href="img/sewamates-icon.png" type="image/png" />
     <link rel="stylesheet" href="css/style.css" />
     <link
@@ -334,7 +334,7 @@
         }
       }
 
-      // --- RENDER PESANAN ---
+      // Render Pesanan
       async function renderOrders(ownerName) {
         const container = document.getElementById("incomingOrderList");
         container.innerHTML =
@@ -401,11 +401,10 @@
         }
       }
 
-      // --- VARIABEL SEMENTARA BUAT NYIMPEN DATA PAS KLIK TOMBOL ---
       let tempOrderId = null;
       let tempNewStatus = null;
 
-      // 1. FUNGSI DIPANGGIL PAS KLIK TOMBOL TERIMA/TOLAK
+      // Fungsi dipanggil pas klik terima/tolak
       function processOrder(orderId, newStatus) {
         tempOrderId = orderId;
         tempNewStatus = newStatus;
@@ -435,19 +434,19 @@
         tempNewStatus = null;
       }
 
-      // 2. FUNGSI EKSEKUSI (DIPANGGIL PAS KLIK "YA" DI MODAL)
+      // Fungsi Eksekusi (Pas klik Ya)
       async function executeProcess() {
         if (!tempOrderId || !tempNewStatus) return;
 
-        // 1. Simpan ID ke variabel lokal biar aman
+        // Simpan ID ke variabel lokal biar aman
         const currentId = tempOrderId;
         const currentStatus = tempNewStatus;
 
-        // 2. Tutup tampilan modalnya
+        // Tutup tampilan modalnya
         document.getElementById("confirmModal").style.display = "none";
 
         try {
-          // 3. Update ke Firebase pakai ID yang sudah diamankan
+          // Update ke Firebase pakai ID yang sudah diamankan
           await db.collection("orders").doc(currentId).update({
             status: currentStatus,
           });
@@ -641,10 +640,10 @@
               popupDesc = "Barang baru siap disewakan.";
             }
 
-            // 1. Tutup Form Modal Dulu
+            // Tutup Form Modal Dulu
             closeAddModal();
 
-            // 2. Tampilkan Pop-up Sukses (Centang)
+            // Tampilkan Pop-up Sukses (Centang)
             const modal = document.getElementById("statusModal");
             const icon = document.getElementById("statusIcon");
             const title = document.getElementById("statusTitle");
@@ -664,7 +663,7 @@
 
             modal.style.display = "flex";
 
-            // 3. Refresh data di background & Tutup pop-up otomatis
+            // Refresh data di background & Tutup pop-up otomatis
             setTimeout(async () => {
               modal.style.display = "none";
               await renderInventory(
@@ -682,7 +681,7 @@
         }
       }
 
-      // --- HAPUS BARANG ---
+      // Hapus Barang
       function openDeleteModal(id) {
         itemToDeleteId = id;
         document.getElementById("deleteModal").style.display = "flex";
@@ -699,13 +698,13 @@
         btn.innerText = "Menghapus...";
 
         try {
-          // 1. Hapus dari Firestore
+          // Hapus dari Firestore
           await db.collection("products").doc(itemToDeleteId).delete();
 
-          // 2. Tutup Modal Konfirmasi Hapus 
+          // Tutup Modal Konfirmasi Hapus 
           closeDeleteModal();
 
-          // 3. Tampilkan Pop-up Sukses Animasi
+          // Tampilkan Pop-up Sukses Animasi
           const modal = document.getElementById("statusModal");
           const icon = document.getElementById("statusIcon");
           const title = document.getElementById("statusTitle");
@@ -725,7 +724,7 @@
 
           modal.style.display = "flex";
 
-          // 4. Refresh Data & Tutup Otomatis
+          // Refresh Data & Tutup Otomatis
           setTimeout(async () => {
             modal.style.display = "none";
             await renderInventory(currentUser.displayName || currentUser.email);

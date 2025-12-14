@@ -43,7 +43,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('orderId');
 
-        // 1. Ambil Data dari FIREBASE (Bukan LocalStorage)
+        // Ambil Data dari Firebase
         async function loadOrderInfo() {
             if(!orderId) return;
             try {
@@ -51,14 +51,14 @@
                 if(doc.exists) {
                     const data = doc.data();
                     document.getElementById('payAmount').innerText = formatRupiah(data.totalPrice || data.total);
-                    startTimer(); // Mulai timer kalau data udah dapet
+                    startTimer();
                 }
             } catch(e) { console.log(e); }
         }
 
         loadOrderInfo();
 
-        // 2. Timer 5 Detik (Logic Tetap)
+        // Timer 5 Detik
         function startTimer() {
             let timeLeft = 5;
             const timerEl = document.getElementById('timer');
@@ -74,19 +74,16 @@
             }, 1000);
         }
 
-        // 3. Update status ke FIREBASE
+        // Update Status ke Firebase
         async function finishPayment() {
             try {
-                // Update pembayaran jadi 'paid'
-                // Status order tetap 'pending' (menunggu provider terima)
                 await db.collection('orders').doc(orderId).update({
                     paymentStatus: 'paid'
                 });
                 
-                // Tampil Popup
+                // Popup
                 document.getElementById('successModal').style.display = 'flex';
                 
-                // Redirect ke Profile
                 setTimeout(() => {
                     window.location.href = 'profile.html';
                 }, 3000);

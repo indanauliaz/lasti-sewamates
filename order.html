@@ -165,11 +165,11 @@
       const ADMIN_FEE = 2000;
       const LOCKER_FEE = 5000;
 
-      // 1. Inisialisasi
+      // Inisialisasi
       initData();
       checkAuth();
 
-      // 2. Cek Login & Load Data
+      // Cek Login & Load Data
       if (typeof firebase !== "undefined" && firebase.auth) {
         firebase.auth().onAuthStateChanged((user) => {
           if (user) {
@@ -185,7 +185,7 @@
         });
       }
 
-      // 3. Fungsi Ambil Data dari Firestore
+      // Fungsi Ambil Data dari Firestore
       async function loadProductData() {
         const urlParams = new URLSearchParams(window.location.search);
         const itemId = urlParams.get("id"); // Ambil ID dari URL (order.html?id=XYZ)
@@ -215,7 +215,7 @@
             document.getElementById("itemImg").src = currentProduct.img;
             document.getElementById("itemPriceDisplay").innerText = formatRupiah(currentProduct.price);
 
-            // Validasi: Tidak boleh sewa barang sendiri
+            // Tidak boleh sewa barang sendiri
             const myName = currentUser.displayName || currentUser.email;
             if (currentProduct.owner === myName) {
                 alert("⚠️ Anda tidak bisa menyewa barang milik sendiri!");
@@ -228,7 +228,7 @@
         }
       }
 
-      // 4. Kalkulator Harga (Sama kayak sebelumnya, cuma dirapikan)
+      // Kalkulator Harga
       function calc() {
         if (!currentProduct) return;
 
@@ -261,7 +261,7 @@
             // Tampilkan/Sembunyikan baris locker
             lockerRow.style.display = (pickupMethod === "locker") ? "flex" : "none";
 
-            // Simpan data di atribut tombol biar gampang diambil pas submit
+            // Simpan data di atribut tombol
             btn.dataset.total = grandTotal;
             btn.dataset.days = diffDays;
 
@@ -278,11 +278,11 @@
         }
       }
 
-      // Pasang Event Listener
+      // Event Listener
       document.getElementById("startDate").addEventListener("change", calc);
       document.getElementById("endDate").addEventListener("change", calc);
 
-      // 5. Submit Order ke Firebase
+      // Submit Order ke Firebase
       async function submitOrder() {
         if (!currentUser || !currentProduct) return;
 
@@ -297,8 +297,7 @@
         const pickupMethod = document.getElementById("pickupMethod").value;
 
         try {
-            // KIRIM KE FIREBASE
-            // Kita simpan ke variabel 'docRef' biar bisa ambil ID-nya
+            // Kirim ke Firebaese
             const docRef = await db.collection('orders').add({
                 productId: currentProduct.id,
                 productName: currentProduct.name,
@@ -306,7 +305,7 @@
                 owner: currentProduct.owner,
                 renterName: currentUser.displayName || currentUser.email,
                 
-                status: 'pending',       // Status pesanan
+                status: 'pending', // Status pesanan
                 paymentStatus: 'unpaid', // Status pembayaran awal
                 days: days,
                 totalPrice: total,
@@ -317,8 +316,7 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 🔥 PERUBAHAN DISINI:
-            // Jangan ke index, tapi ke payment.html bawa Order ID
+            // Bayar
             window.location.href = `payment.html?orderId=${docRef.id}`;
 
         } catch (error) {
