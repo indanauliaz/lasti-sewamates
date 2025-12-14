@@ -23,9 +23,6 @@ button, input, textarea, select {
     font-family: 'Poppins', sans-serif;
 }
 
-/* --- UPDATE css/style.css --- */
-
-/* 1. NAVBAR FIX (Biar Rapi & Gak Tabrakan) */
 .navbar {
     background: white;
     padding: 15px 5%;
@@ -39,7 +36,7 @@ button, input, textarea, select {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 20px; /* Jarak antar menu */
+    gap: 20px;
 }
 
 .nav-links a {
@@ -52,7 +49,6 @@ button, input, textarea, select {
 
 .nav-links a:hover { color: var(--primary-color); }
 
-/* 2. CARD FIX (Biar Tinggi Seragam) */
 .product-card {
     background: white;
     border-radius: 15px;
@@ -60,9 +56,9 @@ button, input, textarea, select {
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     transition: transform 0.3s;
     cursor: pointer;
-    display: flex;           /* Flex biar isinya rapi */
-    flex-direction: column;  /* Susun ke bawah */
-    height: 100%;            /* Pakai tinggi full grid */
+    display: flex;         
+    flex-direction: column;  
+    height: 100%;            
 }
 
 .product-img {
@@ -77,11 +73,10 @@ button, input, textarea, select {
     object-fit: cover;
 }
 
-/* 3. MODAL TAMBAH BARANG FIX (Biar input gak kegedean) */
 .modal-content input, 
 .modal-content textarea {
     width: 100%;
-    box-sizing: border-box; /* Biar padding gak bikin lebar */
+    box-sizing: border-box; 
     padding: 12px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
@@ -126,19 +121,15 @@ button, input, textarea, select {
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* ORDER PAGE (Layout Split) */
 .order-layout { display: flex; flex-wrap: wrap; gap: 30px; background: white; padding: 30px; border-radius: 20px; }
 .order-img { flex: 1; min-width: 300px; }
 .order-details { flex: 1; min-width: 300px; }
 
-/* --- Tambahan Style Baru --- */
-
-/* BADGES (Status Label) */
 .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: white; display: inline-block; }
-.bg-pending { background: #f1c40f; } /* Kuning */
-.bg-paid { background: #3498db; }    /* Biru */
-.bg-approved { background: #2ecc71; } /* Hijau */
-.bg-rejected { background: #e74c3c; } /* Merah */
+.bg-pending { background: #f1c40f; } 
+.bg-paid { background: #3498db; }    
+.bg-approved { background: #2ecc71; } 
+.bg-rejected { background: #e74c3c; } 
 
 /* FAB (Floating Action Button - Tombol Plus) */
 .fab-btn {
@@ -157,58 +148,49 @@ button, input, textarea, select {
 .scan-line { width: 100%; height: 2px; background: red; animation: scan 2s infinite; margin-top: -150px; position: relative; }
 @keyframes scan { 0% {top: 0;} 50% {top: 200px;} 100% {top: 0;} }
 
-/* NAVBAR ROLE SWITCHER */
 .nav-role-badge { 
     background: #eee; color: #333; padding: 5px 10px; 
     border-radius: 5px; font-size: 12px; margin-right: 10px; border: 1px solid #ccc;
 }
 
-/* --- Update di css/style.css --- */
-
-/* LOGO YANG LEBIH MODERN */
 .logo {
     font-family: 'Poppins', sans-serif;
-    font-weight: 800; /* Lebih tebal */
+    font-weight: 800; 
     font-size: 24px;
-    color: #333; /* Warna dasar hitam/abu */
+    color: #333; 
     text-decoration: none;
-    letter-spacing: -1px; /* Rapatkan dikit biar trendy */
+    letter-spacing: -1px; 
 }
 
-/* NAVBAR BIAR LINK "Halo Indana" DI KANAN */
 .navbar {
     background: white;
     padding: 15px 5%;
     display: flex;
-    justify-content: space-between; /* Logo kiri, Sisanya Kanan */
+    justify-content: space-between; 
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     position: sticky; top: 0; z-index: 100;
 }
 
-/* CONTAINER NAV LINKS (Biar rapi) */
 .nav-links {
     display: flex;
     align-items: center;
-    width: 100%; /* Ambil sisa ruang */
+    width: 100%; 
 }
 
-/* BADGE STATUS ORDER (Styling tambahan) */
 .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: white; display: inline-block; }
 .bg-pending { background: #f1c40f; } 
 .bg-paid { background: #3498db; }
 .bg-approved { background: #2ecc71; }
 .bg-rejected { background: #e74c3c; }
 
-/* --- TAMBAHAN DI css/style.css --- */
 
-/* Container tombol di dalam card provider */
 .provider-actions {
     display: flex;
     gap: 10px;
     padding: 10px 15px;
     border-top: 1px solid #eee;
-    margin-top: auto; /* Dorong ke bawah */
+    margin-top: auto; 
 }
 
 .btn-action {
@@ -222,23 +204,19 @@ button, input, textarea, select {
     transition: opacity 0.2s;
 }
 
-.btn-edit { background: #f1c40f; color: white; } /* Kuning */
-.btn-delete { background: #e74c3c; color: white; } /* Merah */
+.btn-edit { background: #f1c40f; color: white; } 
+.btn-delete { background: #e74c3c; color: white; } 
 .btn-action:hover { opacity: 0.8; }
 
-/* --- Update di file css/style.css --- */
-
-/* TOMBOL TAMBAH BARANG (Versi Lebih Kecil & Rapi) */
 .btn-add-normal {
     background-color: var(--primary-color, #4a69bd); 
     color: white;
     
     border: none;
-    border-radius: 10px; /* Radius sedikit dikurangi */
+    border-radius: 10px; 
     
-    /* UKURAN DIPERKECIL DISINI */
-    padding: 10px 20px;  /* Sebelumnya 12px 24px */
-    font-size: 14px;     /* Sebelumnya 15px */
+    padding: 10px 20px;  
+    font-size: 14px;     
     font-weight: 600;
     
     cursor: pointer;
@@ -246,7 +224,6 @@ button, input, textarea, select {
     align-items: center;
     justify-content: center;
     
-    /* Jarak ikon dan teks dirapatkan dikit */
     gap: 8px; 
     
     box-shadow: 0 4px 10px rgba(74, 105, 189, 0.25);
@@ -255,15 +232,14 @@ button, input, textarea, select {
     text-decoration: none;
 }
 
-/* Ukuran Ikon menyesuaikan teks */
 .btn-add-normal i {
-    font-size: 14px; /* Disamakan dengan ukuran font tombol */
+    font-size: 14px; 
     font-weight: bold;
 }
 
 /* Efek Hover */
 .btn-add-normal:hover {
-    transform: translateY(-2px); /* Naik sedikit saja */
+    transform: translateY(-2px); 
     box-shadow: 0 6px 14px rgba(74, 105, 189, 0.35);
     background-color: #3d5aa8;
 }
@@ -273,7 +249,6 @@ button, input, textarea, select {
     box-shadow: 0 2px 6px rgba(74, 105, 189, 0.25);
 }
 
-/* --- Tambahkan di bagian bawah file css/style.css --- */
 
 /* Style untuk Dropdown Pilihan */
 select {
@@ -286,7 +261,7 @@ select {
     background: #f9f9f9;
     box-sizing: border-box;
     cursor: pointer;
-    appearance: none; /* Hilangkan panah default browser */
+    appearance: none; 
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: right 15px top 50%;
@@ -320,12 +295,10 @@ select:focus { outline: none; border-color: #667eea; background-color: white; }
 }
 
 .price-row.total span:last-child {
-    color: #4a69bd; /* Warna Total */
+    color: #4a69bd; 
 }
 
-/* =========================
-   LOGO SEWAMATES (ICON + TEXT)
-   ========================= */
+/*logo*/
 
 .logo {
     display: flex;
@@ -353,3 +326,23 @@ select:focus { outline: none; border-color: #667eea; background-color: white; }
 .logo-blue {
     color: #4E85BE;
 }
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-actions {
+  margin-top: auto;
+  padding-top: 10px;   
+  display: flex;
+  gap: 5px;
+}
+
