@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Toko - SewaMates</title>
+    <link rel="icon" href="img/sewamates-icon.png" type="image/png">
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
@@ -424,23 +425,25 @@
             const productData = encodeURIComponent(JSON.stringify(p));
 
             html += `
-                <div class="product-card">
-                    <div class="product-img"><img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150'"></div>
-                    <div class="product-info">
-                        <div style="font-weight:bold;">${p.name}</div>
-                        <div style="color:#4a69bd; font-size:14px;">${formatRupiah(p.price)}/hari</div>
-                        
-                        <div style="display:flex; gap:5px; margin-top:10px;">
-                            <button onclick="openEditModal('${productData}')" style="flex:1; background:#f39c12; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px;">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button onclick="openDeleteModal('${p.id}')" style="flex:1; background:#ff6b6b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px;">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
+              <div class="product-card">
+                  <div class="product-img">
+                      <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150'">
+                  </div>
+                  <div class="product-info">
+                      <div style="font-weight:600; font-size: 15px; margin-bottom: 4px;">${p.name}</div>
+                      <div style="color:#4a69bd; font-size:14px; font-weight: 500;">${formatRupiah(p.price)}/hari</div>
+                      
+                      <div style="display:flex; gap:5px; margin-top:10px;">
+                          <button onclick="openEditModal('${productData}')" style="flex:1; background:#f39c12; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px; font-weight: 500;">
+                              <i class="fas fa-edit"></i> Edit
+                          </button>
+                          <button onclick="openDeleteModal('${p.id}')" style="flex:1; background:#ff6b6b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-size:12px; font-weight: 500;">
+                              <i class="fas fa-trash"></i> Hapus
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          `;
         });
 
         html += `</div>`;
@@ -608,7 +611,7 @@
             btn.innerText = "Ya, Hapus"; 
         }
       }
-      
+
       function formatRupiah(angka) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
       }
